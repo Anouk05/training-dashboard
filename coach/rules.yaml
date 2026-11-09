@@ -1,0 +1,13 @@
+# Hard coaching rules, checked automatically by the dashboard (Week page)
+# and by Claude when planning. Edit the numbers to change them.
+rules:
+  weekly_load_ramp_max: 0.10  # planned weekly load at most +10% on last week…
+  ramp_exempt_acwr_below: 0.9 # …unless you are coming off light weeks (ACWR below this)
+  acwr_max: 1.3               # acute:chronic load ratio upper limit
+  no_back_to_back_hard: true  # never two hard days in a row
+  long_session_rest_before: true
+
+zones:
+  run_lthr: 178
+  default_lthr: 180
+  ride_lthr: 178

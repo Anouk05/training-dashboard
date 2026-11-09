@@ -1,0 +1,77 @@
+# Test protocols per sport, shown on the Progress page as the tests you can do.
+# A completed workout counts as a test when its name matches `match` (regex, case-insensitive);
+# its result comes from the coach report (`result:` in reports/workouts/…md) or is read from the workout.
+# Results without a workout (e.g. strength) go in plans/tests.yaml.
+tests:
+  run:
+    - id: RUN-AEROBIC
+      name: Aerobic test
+      measures: Aerobic endurance · efficiency factor (m per heartbeat) and decoupling
+      how: 10′ warm-up, then 30′ steady on a flat route at a fixed heart rate (150 bpm, top of Z1), 5′ cool-down
+      when: last week of each base period
+      match: 'aerobic test|aerobic baseline'
+    - id: RUN-TT30
+      name: 30-minute time trial
+      measures: LTHR (average HR of the last 20′) and threshold pace
+      how: 15′ warm-up with 3 strides, then 30′ as hard as you can sustain, alone, evenly paced
+      when: end of base 3 and build
+      match: '30 ?m(in)? (test|tt)|30.?minute'
+    - id: RUN-5K
+      name: 5 km time trial
+      measures: Race fitness · predicts half-marathon pace
+      how: 15′ warm-up, 5 km all out on a flat course or track
+      when: build period, or use a parkrun
+      match: '5 ?k(m)? (test|tt|time ?trial)|parkrun'
+  ride:
+    - id: RIDE-AEROBIC
+      name: Aerobic test
+      measures: Aerobic endurance · efficiency factor (NP ÷ HR) and decoupling
+      how: 15′ warm-up, then 40′ indoors at a fixed heart rate (140 bpm, Z2), 5′ cool-down
+      when: last week of each base period
+      match: 'aerobic test'
+    - id: RIDE-TEST-6m
+      name: 6-minute power test
+      measures: Aerobic capacity (VO2max power) · FTP estimate
+      how: 20′ warm-up with openers, 6′ all out in level mode (not ERG), 15′ cool-down
+      when: end of base and build periods
+      match: '6 ?m(in)? test'
+    - id: RIDE-TEST-30m
+      name: 30-minute test
+      measures: FTP (average power) and cycling LTHR (average HR of the last 20′)
+      how: 15′ warm-up with two 1′ efforts, 30′ evenly paced as hard as you can sustain, 10′ cool-down
+      when: end of base 1, base 3 and build
+      match: '30 ?m(in)? test|ftp test|20 ?m(in)? test'
+  swim:
+    - id: SWIM-1000
+      name: 1,000 m time trial
+      measures: Threshold pace per 100 m (T-pace) · your swim objective (1,500 m under 30′)
+      how: 400 m easy with drills, 4 × 50 m build, then 1,000 m continuous at best even effort
+      when: every 4–6 weeks once you swim regularly
+      match: '1000 ?m? (test|tt)|1k (test|tt)'
+    - id: SWIM-CSS
+      name: CSS test (400 + 200 m)
+      measures: Critical swim speed = 200 ÷ (time 400 − time 200)
+      how: warm-up, 400 m all out, 5′ easy, 200 m all out
+      when: alternative to the 1,000 m TT
+      match: 'css'
+  strength:
+    - id: STR-SQUAT-5RM
+      name: 5RM squat or leg press
+      measures: Maximum strength · estimated 1RM (5RM × 1.15) and per kg body weight
+      how: after the maximum strength (MS) phase; build up to the heaviest 5 clean reps
+      when: end of MS (late December) and after the Almere MS block
+    - id: STR-DEADLIFT-5RM
+      name: 5RM Romanian deadlift
+      measures: Posterior-chain strength · estimated 1RM
+      how: same as the squat test, on another day
+      when: end of MS
+    - id: STR-PUSHUPS
+      name: Max push-ups
+      measures: Upper-body strength endurance
+      how: strict push-ups, chest to fist height, until form breaks
+      when: every 4 weeks
+    - id: STR-PLANK
+      name: Max plank
+      measures: Core endurance
+      how: forearm plank, straight line, until the hips drop
+      when: every 4 weeks

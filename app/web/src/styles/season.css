@@ -1,0 +1,76 @@
+/* Season page: past seasons and the annual training plan table. */
+/* plan */
+.blk { border-radius: 18px; padding: 16px; background: rgba(255,255,255,.035); border: 1px solid var(--line); }
+.blk.on { border-color: hsla(var(--glow), 90%, 60%, .6); background: hsla(var(--glow), 90%, 60%, .07); }
+.blk .k { font-size: 11px; color: var(--mute); }
+.blk .n { font-size: 16px; font-weight: 500; margin: 4px 0 2px; }
+.blkweeks { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.bw { border-radius: 16px; padding: 14px; background: rgba(255,255,255,.035); border: 1px solid var(--line); }
+.bw .k { font-size: 11px; color: var(--mute); display: flex; justify-content: space-between; }
+.bw .hrs { font-size: 22px; font-weight: 500; margin: 6px 0 10px; letter-spacing: -.02em; }
+.bw .ks { font-size: 12.5px; padding: 7px 0; border-top: 1px solid var(--line); display: flex; gap: 8px; align-items: center; }
+.seasons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.scard { display: flex; flex-direction: column; gap: 4px; }
+.scard .lab { font-size: 18px; font-weight: 500; letter-spacing: -.02em; }
+.scard .kv { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; margin: 12px 0 14px; }
+.scard .kv .k { font-size: 11px; color: var(--mute); }
+.scard .kv .v { font-size: 20px; font-weight: 500; letter-spacing: -.02em; margin-top: 2px; }
+.scard .kv .v small { font-size: 11.5px; color: var(--mute); font-weight: 400; margin-left: 3px; }
+.scard .sec { font-size: 11px; color: var(--mute); text-transform: uppercase; letter-spacing: .08em; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+.scard .sec.plain { text-transform: none; letter-spacing: 0; font-size: 12.5px; color: var(--text); display: flex; justify-content: space-between; }
+.scard ul { margin: 6px 0 0; padding: 0; list-style: none; font-size: 12.5px; line-height: 1.45; color: var(--soft); }
+.scard li { padding: 4px 0 4px 16px; position: relative; }
+.scard li::before { content: ""; position: absolute; left: 0; top: 10px; width: 6px; height: 6px; border-radius: 50%; background: hsl(158 80% 62%); }
+.scard li.goal::before { background: transparent; border: 1.5px solid #8b8b97; width: 4px; height: 4px; }
+.mixbar { display: flex; height: 6px; border-radius: 6px; overflow: hidden; gap: 2px; margin-top: 6px; }
+
+
+/* annual training plan */
+.atp-list { margin: 0; padding-left: 18px; font-size: 13.5px; line-height: 1.6; color: var(--soft); }
+.atp-wrap { overflow-x: auto; }
+.atp { border-collapse: collapse; width: 100%; font-size: 12.5px; min-width: 1100px; }
+.atp th { font-weight: 500; color: var(--mute); font-size: 11px; padding: 4px 6px; text-align: center; white-space: nowrap; }
+.atp th.sport { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; border-bottom: 2px solid; padding-bottom: 6px; }
+.atp th.rot { height: 128px; vertical-align: bottom; padding: 0 0 8px; width: 22px; }
+.atp th.rot span { writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; font-size: 10.5px; }
+.atp th.l, .atp td.l { text-align: left; }
+.atp td { padding: 5px 6px; text-align: center; border-top: 1px solid rgba(255,255,255,.045); white-space: nowrap; }
+.atp tr.np td { border-top-color: rgba(255,255,255,.16); }
+.atp tr.past td { opacity: .5; }
+.atp tr.now td { background: hsla(158, 80%, 62%, .08); }
+.atp tr.now td:first-child { box-shadow: inset 3px 0 hsl(158 80% 62%); }
+.atp tbody tr:hover td { background: rgba(255,255,255,.04); }
+.atp td.races { white-space: normal; min-width: 220px; max-width: 300px; }
+.atp td.races .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 7px; vertical-align: 1px; }
+.atp td .note { font-size: 11.5px; }
+.atp .period { appearance: none; border: 0; outline: none; cursor: pointer; font: inherit; padding: 2px 9px; border-radius: 7px; color: #fff; font-size: 11.5px; min-width: 80px; }
+.atp .period:hover, .atp .period:focus { box-shadow: 0 0 0 1px rgba(255,255,255,.35); }
+.atp .period option, .atp .wsel option { background: #15151b; color: #fff; }
+.atp .wsel { appearance: none; border: 0; outline: none; cursor: pointer; background: transparent; color: var(--str); font-size: 11.5px; padding: 2px 4px; border-radius: 5px; text-align: center; }
+.atp .wsel:hover, .atp .wsel:focus { background: rgba(255,255,255,.07); }
+.atp td.wk { cursor: pointer; border-radius: 6px; }
+.atp td.wk:hover { color: hsl(158 80% 62%); }
+.atp tr.sel td { background: hsla(158, 80%, 62%, .12); }
+.atp tr.sel td.wk { color: hsl(158 80% 62%); font-weight: 600; }
+.atp td.vol { cursor: text; }
+.atp .volin { width: 56px; font-size: 12.5px; color: var(--text); background: rgba(255,255,255,.08); border: 1px solid hsla(158, 80%, 62%, .6); border-radius: 6px; padding: 2px 6px; outline: none; }
+.atp .notein { width: 100%; font: inherit; font-size: 11.5px; color: var(--text); background: rgba(255,255,255,.08); border: 1px solid hsla(158, 80%, 62%, .6); border-radius: 6px; padding: 2px 6px; outline: none; }
+.atp td .note { cursor: text; display: block; }
+.atp td .note.empty { opacity: 0; }
+.atp tr:hover td .note.empty { opacity: .6; }
+.atp td.x { cursor: pointer; }
+.atp .mark.off { background: transparent; }
+.atp td.x:hover .mark.off { background: rgba(255,255,255,.14); }
+.atp-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 10px 12px; margin-bottom: 12px; border-radius: 14px;
+  background: hsla(158, 80%, 62%, .07); border: 1px solid hsla(158, 80%, 62%, .3); font-size: 13px; }
+.atp-bar .field { font-size: 12.5px; padding: 6px 9px; color-scheme: dark; }
+.atp-err { color: #ff9b8a; font-size: 12.5px; margin-bottom: 10px; }
+.atp td.vol { position: relative; min-width: 84px; text-align: left; }
+.atp td.vol .vbar { position: absolute; left: 6px; top: 50%; height: 14px; transform: translateY(-50%); max-width: calc(100% - 12px);
+  background: rgba(255,255,255,.07); border-radius: 3px; }
+.atp td.vol .mono { position: relative; }
+.atp td.vol .done { color: hsl(158 80% 62%); margin-left: 8px; font-size: 11.5px; }
+.atp td.wt { color: var(--str); font-size: 11.5px; }
+.atp td.x { width: 22px; padding: 5px 2px; }
+.atp td.first, .atp th.first { border-left: 1px solid rgba(255,255,255,.08); }
+.atp .mark { display: inline-block; width: 9px; height: 9px; border-radius: 3px; opacity: .85; }

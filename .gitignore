@@ -1,0 +1,26 @@
+# ---- Secrets ------------------------------------------------------------------
+.env
+.garmin_token.json
+.claude/settings.local.json
+# launch config has your home-folder paths
+.claude/launch.json
+
+# ---- Personal data: synced from Garmin / intervals.icu, or about your body and health
+garmin_data/
+intervals_data/
+nutrition/intake/
+nutrition/fuel.json
+reports/
+# your plans, goals, races and results
+plans/
+# design mockups were built from a snapshot of your real data
+design/
+
+# ---- Generated / local ----------------------------------------------------------
+.venv/
+__pycache__/
+*.pyc
+node_modules/
+app/web/dist/
+*.tmp
+.DS_Store

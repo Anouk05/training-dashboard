@@ -1,0 +1,9 @@
+# Items for the quick fuel check on a workout: tap how many you had during the workout.
+# carbs = grams of carbohydrate per item. Change these to match the products you use.
+during:
+  - { id: gel, name: Gel, carbs: 25 }
+  - { id: bar, name: Energy bar, carbs: 40 }
+  - { id: drink, name: Sports drink 500 ml, carbs: 30 }
+  - { id: banana, name: Banana, carbs: 25 }
+  - { id: gummies, name: Gummies / sweets (handful), carbs: 25 }
+  - { id: cake, name: Ontbijtkoek slice, carbs: 18 }
