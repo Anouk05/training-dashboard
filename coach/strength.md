@@ -30,16 +30,11 @@ Load is always the total weight you move: two 5 kg dumbbells = 10 kg; for a barb
 | Single leg squat | balance, hip and knee control | split squat or Bulgarian split squat; log both dumbbells together |
 | Power step-up | single-leg power for running and cycling | drive up fast, lower slowly; log both dumbbells together |
 | Leg curl | hamstrings | balances the quad work |
-| Core | trunk stability | log the exercise in Reps, e.g. "plank 3×40s" |
+| Core | core stability | log the exercise in Reps, e.g. "plank 3×40s" |
 
 ## Principles
 
-Write your own here; these are starting points.
-
-- Technique first: in AA, every rep is controlled and you could do about 5 more (RPE ≤ 6).
 - Raise the load only when all sets reach the top of the rep range with good form; go up about 5 % (2.5 kg on most lifts).
-- In MS, keep 1–2 reps in reserve; never train to failure on squats.
+- In MS, keep 1–2 reps in reserve; never train to complete failure to prevent injuries.
 - Weights sessions in prep and early base count as hard days: at least 2 days between them, and a recovery day after.
 - Do the gym session before an endurance session on the same day, or on another day.
-- Injuries: pick exercises that don't load the injured joint painfully; note any pain in the log and swap the exercise if it comes back.
-- Eat enough around gym days: a snack with protein and carbs within an hour after.
