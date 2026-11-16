@@ -35,6 +35,11 @@ Judge the session against what it was meant to be. Look at, in this order:
    An easy session with time in Z3+ is a finding; a test or interval session is judged on its reps and targets.
 3. **Execution**: rep consistency (`reps`: pace/HR spread), pacing of tests (even vs fading), drift
    (`halves.decoupling_pct`: < 5 % good aerobic control, > 8 % worth mentioning, unless it's a hard session).
+3b. **Per part of the plan** (`parts`, from 1-second data; also shown as a table on the workout page): judge each
+   part against its own target. Drills: cadence per rep (`per_rep`) vs the rpm in `target`, and how far cadence drops
+   between reps. Main set: power in its target range, EF (NP per heartbeat; metres/min per heartbeat on runs) and
+   `decoupling` (< 5 % good). Warm-up EF is usually lower; compare main set with main set. Name the part in the bullet
+   (e.g. "Main set: EF 0.98, drift 1 %"): per-part numbers aren't in the header, so they may be quoted.
 4. **Response vs earlier**: `m_per_beat` (speed per heartbeat) or power at HR against `earlier_comparable`.
    Only call it progress/regress when the difference is clear (> ~3 %) and conditions are comparable.
 5. **Subjective**: RPE, feel and notes (notes may be Dutch). Mismatch between RPE and HR is worth a line.

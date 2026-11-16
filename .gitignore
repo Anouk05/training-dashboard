@@ -10,6 +10,8 @@ garmin_data/
 intervals_data/
 nutrition/intake/
 nutrition/fuel.json
+nutrition/recipes.yaml
+notion_data/
 reports/
 # your plans, goals, races and results
 plans/

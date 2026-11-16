@@ -1,0 +1,17 @@
+# Your recipes, so a meal can be logged by name and estimated the same way every time.
+# Copy this file to recipes.yaml (kept out of git) and add your own.
+# per_serving = estimate for one portion (kcal, carbs/protein/fat in g); per_100g for things you weigh.
+recipes:
+  - id: oats-apple
+    name: Oats with apple
+    servings: 1
+    ingredients:
+      - 40 g rolled oats
+      - 200 ml semi-skimmed milk
+      - 1 apple (~150 g)
+      - 10 g honey
+    per_serving: { kcal: 360, carbs: 61, protein: 12, fat: 6 }
+
+  - id: greek-yoghurt-2
+    name: Greek yoghurt 2%
+    per_100g: { kcal: 72, carbs: 3.5, protein: 9, fat: 2 }
