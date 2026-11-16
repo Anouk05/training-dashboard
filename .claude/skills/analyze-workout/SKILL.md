@@ -6,7 +6,7 @@ description: Analyse completed workouts (after sync) against the plan, zones, ea
 # Analyse workout
 
 Arguments: an activity id, `latest`, or nothing (= every completed workout of the last 7 days without a report).
-Work from the project root (the folder with CLAUDE.md).
+Work from the project root (the folder with `.claude/` and `app/`).
 
 ## 1. Get fresh data
 ```bash

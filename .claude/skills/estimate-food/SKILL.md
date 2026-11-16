@@ -5,7 +5,7 @@ description: Estimate kcal, carbs, protein and fat for meals in the Fuel food lo
 
 # Estimate the food log
 
-Work from the project root (the folder with CLAUDE.md).
+Work from the project root (the folder with `.claude/` and `app/`).
 
 ## 1. Find meals to estimate
 Files: `data/nutrition/intake/<YYYY-MM-DD>.json`, each `{"meals": [{id, slot, time, text, kcal, carbs, protein, fat, source}]}`.
