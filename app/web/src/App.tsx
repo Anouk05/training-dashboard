@@ -49,7 +49,7 @@ export default function App() {
   return (
     <div className="app" style={{ ['--glow' as string]: glow }}>
       <div className="top">
-        <div className="brand"><i />Pulse</div>
+        <div className="brand"><i /></div>
         <nav>{PAGES.map(([k, n]) => <a key={k} href={'#' + k} className={page === k ? 'on' : ''}>{n}</a>)}</nav>
         <button className={`sync ${sync.state}`} onClick={runSync} title="Pull new data from Garmin and intervals.icu">
           <i />{sync.state === 'busy' ? 'Syncing…' : sync.state === 'err' ? 'Sync failed · retry' : sync.at ? `Synced ${sync.at}` : 'Sync'}

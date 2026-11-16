@@ -1,5 +1,5 @@
 #!/bin/bash
-# Start the Pulse dashboard: API on :8765, web app on http://localhost:5173
+# Start the Training Dashboard: API on :8765, web app on http://localhost:5173
 cd "$(dirname "$0")"
 .venv/bin/uvicorn app.backend.main:app --port 8765 --reload --reload-dir app/backend &
 API=$!

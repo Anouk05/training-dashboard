@@ -74,7 +74,7 @@ def request(method: str, path: str, body: dict | None = None):
         "Authorization": "Basic " + base64.b64encode(f"API_KEY:{key}".encode()).decode(),
         "Accept": "application/json",
         # intervals.icu sits behind Cloudflare, which blocks the default Python user agent
-        "User-Agent": "pulse-dashboard/1.0",
+        "User-Agent": "training-dashboard/1.0",
     }
     data = None
     if body is not None:

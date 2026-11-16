@@ -1,6 +1,6 @@
 ---
 name: analyze-workout
-description: Analyse completed workouts (after sync) against the plan, zones, earlier sessions, recovery and the coach rules, and write a short coach report that the Pulse dashboard shows on the workout page. Use when the user asks to analyse a workout ("analyse today's run", "how did my test go"), or with no argument to analyse every recent workout that has no report yet (this is what the scheduled run does).
+description: Analyse completed workouts (after sync) against the plan, zones, earlier sessions, recovery and the coach rules, and write a short coach report that the dashboard shows on the workout page. Use when the user asks to analyse a workout ("analyse today's run", "how did my test go"), or with no argument to analyse every recent workout that has no report yet (this is what the scheduled run does).
 ---
 
 # Analyse workout

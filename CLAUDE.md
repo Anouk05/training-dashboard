@@ -1,4 +1,4 @@
-# Sport: training data, plans and the Pulse dashboard
+# Sport: training data, plans and the Training Dashboard
 
 ## Layout
 - `garmin_sync.py`: incremental Garmin Personal API sync, writes to `garmin_data/` (`python3 garmin_sync.py`). The code is in `garmin/`: `client.py` (auth, HTTP, CSV helpers), `activities.py`, `wellness.py` (daily, zones, training load, cycle, weight).

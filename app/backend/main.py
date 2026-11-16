@@ -16,7 +16,7 @@ import garmin_sync
 import intervals_sync
 import notion_sync
 
-app = FastAPI(title="Pulse")
+app = FastAPI(title="Training Dashboard")
 _last_sync: dict = {"at": None, "ok": None}
 
 

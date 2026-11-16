@@ -22,14 +22,15 @@ b { font-weight: 500; }
 .app > * { position: relative; z-index: 1; }
 
 /* top bar */
-.top { display: flex; align-items: center; gap: 24px; margin-bottom: 30px; }
-.brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px; }
+.top { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 24px; margin-bottom: 30px; } /* menu centred, Sync on the right */
+.brand { display: flex; align-items: center; }
 .brand i { width: 22px; height: 22px; border-radius: 7px; background: conic-gradient(from 200deg, hsl(var(--glow) 90% 60%), hsl(calc(var(--glow) + 120) 90% 65%), hsl(var(--glow) 90% 60%)); }
 nav { display: flex; gap: 2px; padding: 4px; border-radius: 13px; background: var(--glass); border: 1px solid var(--line); margin: 0 auto; }
 nav a { padding: 8px 15px; border-radius: 9px; font-size: 13px; color: var(--mute); text-decoration: none; transition: .2s; white-space: nowrap; }
 nav a:hover { color: var(--text); }
 nav a.on { background: rgba(255,255,255,.09); color: var(--text); }
 .sync { all: unset; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--mute); padding: 8px 12px; border-radius: 11px; border: 1px solid var(--line); background: var(--glass); }
+.top .sync { justify-self: end; }
 .sync:hover { color: var(--text); }
 .sync i { width: 6px; height: 6px; border-radius: 50%; background: #5ef2c4; box-shadow: 0 0 8px #5ef2c4; }
 .sync.busy i { animation: blink 1s infinite; }

@@ -1,4 +1,4 @@
-# Pulse: a training dashboard
+# Training Dashboard
 
 A training dashboard for endurance training. It pulls data from Garmin and
 intervals.icu, and optionally gym sessions from Notion. It shows your week, season plan, workouts, progress,
