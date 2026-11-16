@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import date, timedelta
 
-from .store import athlete_name, fmt_dur, fmt_pace, iso_week, monday, ROOT, SPORT_NAMES
+from .store import athlete_name, DATA, fmt_dur, fmt_pace, iso_week, monday, SPORT_NAMES
 from .sources import acts, calendar, ev_date, events, has_calendar, RACE_CATS, rules, zones_for
 from .body import load_series, readiness
 from .workouts import act_summary, intensity_of, is_hard, planned_from_event, planned_session, week_plan, workout_for
@@ -156,8 +156,8 @@ def today() -> dict:
 
 
 def coach_note(t: date, rd: dict, yesterday: list[dict], notes: list[str] | None = None) -> dict:
-    """Deterministic note until Claude's daily analysis (reports/coach/<date>.md) exists."""
-    f = ROOT / "reports" / "coach" / f"{t.isoformat()}.md"
+    """Deterministic note until Claude's daily analysis (data/reports/coach/<date>.md) exists."""
+    f = DATA / "reports" / "coach" / f"{t.isoformat()}.md"
     if f.exists():
         return {"source": "claude", "paragraphs": [p.strip() for p in f.read_text().split("\n\n") if p.strip()]}
     paras = []

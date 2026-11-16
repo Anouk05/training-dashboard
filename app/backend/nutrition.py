@@ -15,16 +15,16 @@ from datetime import date, timedelta
 
 from datetime import datetime
 
-from .store import ROOT, num
+from .store import DATA, ROOT, num
 from . import sources, store, workouts
 
-# sync clients in the project root (store puts it on sys.path)
-import intervals_sync
+# sync clients in sync/ (store puts the project root on sys.path)
+from sync import intervals as intervals_sync
 
-DIR = ROOT / "nutrition"
+DIR = DATA / "nutrition"                       # yours: food log and fuel checks
 FUEL = DIR / "fuel.json"
 INTAKE = DIR / "intake"
-FOODS = DIR / "foods.yaml"
+FOODS = ROOT / "nutrition" / "foods.yaml"     # shared settings: during-workout items
 
 
 # --------------------------------------------------------------------------- body
@@ -195,7 +195,7 @@ def set_fuel_check(aid: str, log: dict) -> dict:
     log = {**log, "carbs_g": round(carbs)}
     allf = _read_json(FUEL, {})
     allf[aid] = log
-    DIR.mkdir(exist_ok=True)
+    DIR.mkdir(parents=True, exist_ok=True)
     FUEL.write_text(json.dumps(allf, indent=1, ensure_ascii=False))
     a = next((x for x in sources.acts() if x["activity_id"] == aid), None)
     if a and a.get("icu_id"):

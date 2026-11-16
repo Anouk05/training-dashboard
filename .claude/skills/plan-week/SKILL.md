@@ -9,19 +9,19 @@ Method for planning a training week, based on Joe Friel's methods. **If `method.
 read them first: they take precedence over the summary and the fallback rule below.
 
 ## In this project
-- Inputs: the week in `plans/atp-*.yaml` (period, hours, TSS, weights, abilities, focus) and its `sport_split` target,
+- Inputs: the week in `data/plans/atp-*.yaml` (period, hours, TSS, weights, abilities, focus) and its `sport_split` target,
   `coach/principles.md` (and `coach/principles.local.md` if present), `coach/rules.yaml`, readiness and recent load
   (`/api/today`, `/api/week`), and the athlete's anchors and preferences (ask).
 - Keep the week's total from the annual plan; distribute it over the days with the daily tables or the fallback rule.
 - Write workouts in intervals.icu workout text (`- 10m 120w`, `- 45m Z1-Z2 HR`, `6x` repeats; power in W from the
   current FTP). Add an `Abilities: AE, SS` line when the abilities aren't obvious from the steps.
-- Show the plan in the chat first. Create the workouts with `intervals_sync.create_event` only after the athlete
-  says yes, then run `python3 intervals_sync.py`.
+- Show the plan in the chat first. Create the workouts with `sync.intervals.create_event` only after the athlete
+  says yes, then run `.venv/bin/python -m sync intervals`.
 - Check the Week page's coach rules (e.g. load ramp) and report a rule break instead of quietly changing the volume.
 - Mention fuelling for long or hard sessions (the Fuel page's targets).
 - Gym sessions: take sets, reps and load from `coach/strength.md` for the week's weights phase and the next-session
   targets on Progress → Strength (`/api/strength`); once the gym session is in intervals.icu, Sync (or
-  `python3 notion_sync.py plan`) puts its checklist with proposed loads in Notion.
+  `.venv/bin/python -m sync notion plan`) puts its checklist with proposed loads in Notion.
 
 ## How to build the week
 1. **Keep weeks alike.** A stable routine is easier to follow and to compare.

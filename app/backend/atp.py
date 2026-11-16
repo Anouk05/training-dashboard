@@ -1,4 +1,4 @@
-"""Annual training plan (plans/atp-*.yaml): read it, edit weeks from the dashboard, and keep the period notes
+"""Annual training plan (data/plans/atp-*.yaml): read it, edit weeks from the dashboard, and keep the period notes
 in intervals.icu in sync."""
 
 from __future__ import annotations
@@ -10,12 +10,12 @@ from .store import as_date, cached, PLANS, read_yaml
 from .sources import acts, calendar, ev_date, events, RACE_CATS
 from .workouts import planned_from_event
 
-# sync clients in the project root (store puts it on sys.path)
-import intervals_sync
+# sync clients in sync/ (store puts the project root on sys.path)
+from sync import intervals as intervals_sync
 
 
 def atp() -> dict:
-    """Annual training plan from the latest plans/atp-*.yaml: one row per week with period, volume, weights and
+    """Annual training plan from the latest data/plans/atp-*.yaml: one row per week with period, volume, weights and
     abilities, plus races from the intervals.icu calendar and what was planned/done there each week."""
     files = sorted(PLANS.glob("atp-*.yaml"))
     if not files:
@@ -47,7 +47,7 @@ def atp() -> dict:
         weeks.append(row)
     planned = sum(w.get("volume") or 0 for w in weeks)
     return {k: p.get(k) for k in ("athlete", "season", "annual_volume", "annual_tss", "goals", "objectives")} | {
-        "file": f"plans/{files[-1].name}", "weeks": weeks, "planned_hours": round(planned, 1),
+        "file": f"data/plans/{files[-1].name}", "weeks": weeks, "planned_hours": round(planned, 1),
         "planned_tss": sum(w.get("tss") or 0 for w in weeks),
         "done_hours": round(sum(w.get("done_hours") or 0 for w in weeks), 1),
         "done_load": sum(w.get("done_load") or 0 for w in weeks)}

@@ -1,4 +1,4 @@
-"""Activities: one row per activity in garmin_data/activities.csv, fetched incrementally (with a small
+"""Activities: one row per activity in data/garmin/activities.csv, fetched incrementally (with a small
 overlap to catch late edits), plus per-activity summary details."""
 
 from __future__ import annotations

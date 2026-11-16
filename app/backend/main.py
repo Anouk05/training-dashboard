@@ -11,10 +11,8 @@ from pydantic import BaseModel
 
 from . import activity, atp, body, nutrition, progress, season, strength, week, workouts
 
-# sync clients in the project root (store puts it on sys.path)
-import garmin_sync
-import intervals_sync
-import notion_sync
+# sync clients in sync/ (store puts the project root on sys.path)
+from sync import garmin as garmin_sync, intervals as intervals_sync, notion as notion_sync
 
 app = FastAPI(title="Training Dashboard")
 _last_sync: dict = {"at": None, "ok": None}
@@ -171,7 +169,7 @@ class Move(BaseModel):
     week_start: date
     to: date
     event_id: int | None = None  # intervals.icu planned workout
-    index: int | None = None     # fallback: session line in a plans/weeks YAML file
+    index: int | None = None     # fallback: session line in a data/plans/weeks YAML file
 
 
 @app.post("/api/week/move")

@@ -1,5 +1,5 @@
 # Your recipes, so a meal can be logged by name and estimated the same way every time.
-# Copy this file to recipes.yaml (kept out of git) and add your own.
+# Copy this file to data/nutrition/recipes.yaml (kept out of git) and add your own.
 # per_serving = estimate for one portion (kcal, carbs/protein/fat in g); per_100g for things you weigh.
 recipes:
   - id: oats-apple

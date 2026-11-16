@@ -1,7 +1,7 @@
 # Test protocols per sport, shown on the Progress page as the tests you can do.
 # A completed workout counts as a test when its name matches `match` (regex, case-insensitive);
-# its result comes from the coach report (`result:` in reports/workouts/…md) or is read from the workout.
-# Results without a workout (e.g. strength) go in plans/tests.yaml.
+# its result comes from the coach report (`result:` in data/reports/workouts/…md) or is read from the workout.
+# Results without a workout (e.g. strength) go in data/plans/tests.yaml.
 tests:
   run:
     - id: RUN-AEROBIC

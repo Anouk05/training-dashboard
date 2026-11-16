@@ -12,9 +12,9 @@ from .sources import acts, analyses, events, library, power_zones_for, zones_for
 from .parts import parts as plan_parts
 from .workouts import act_summary, parse_steps, planned_from_event, workout_for
 
-# sync clients in the project root (store puts it on sys.path)
-from garmin.client import api_get
-import intervals_sync
+# sync clients in sync/ (store puts the project root on sys.path)
+from sync.garmin.client import api_get
+from sync import intervals as intervals_sync
 
 
 def activity_list(limit: int = 60, sport: str | None = None) -> list[dict]:
@@ -23,7 +23,7 @@ def activity_list(limit: int = 60, sport: str | None = None) -> list[dict]:
 
 
 def _details(aid: str) -> dict | None:
-    DETAILS.mkdir(exist_ok=True)
+    DETAILS.mkdir(parents=True, exist_ok=True)
     f = DETAILS / f"{aid}.json"
     if f.exists():
         return json.loads(f.read_text())

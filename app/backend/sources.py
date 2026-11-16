@@ -95,7 +95,7 @@ def _analyses(key) -> dict[str, dict]:
             meta = yaml.safe_load(fm) or {}
         aid = str(meta.get("activity_id") or name.rsplit("-", 1)[-1].removesuffix(".md"))
         out[aid] = {"title": meta.get("title", ""), "rating": meta.get("rating"), "flags": meta.get("flags") or [],
-                    "result": meta.get("result"), "body": body.strip(), "file": f"reports/workouts/{name}"}
+                    "result": meta.get("result"), "body": body.strip(), "file": f"data/reports/workouts/{name}"}
     return out
 
 

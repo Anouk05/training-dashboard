@@ -9,12 +9,12 @@ Method to build an annual training plan, based on Joe Friel's methods. **If `met
 
 ## In this project
 - Read first: `coach/principles.md` (and `coach/principles.local.md` if present), `coach/rules.yaml`, the athlete
-  context in memory, past seasons (`/api/seasons`) and the current plan (`plans/atp-*.yaml`).
+  context in memory, past seasons (`/api/seasons`) and the current plan (`data/plans/atp-*.yaml`).
 - Go through the steps with the athlete one question round at a time, with a recommended option. Don't fill in
   goals, objectives or race priorities yourself.
 - Use the weekly volumes exactly as the tables (or the fallback rule) give them; raise concerns in the chat instead
   of easing weeks on your own judgement.
-- Save the plan in `plans/atp-<season>.yaml`, one week per line (format at the top of that file). The dashboard edits
+- Save the plan in `data/plans/atp-<season>.yaml`, one week per line (format at the top of that file). The dashboard edits
   the same lines; `app/backend/atp.py` keeps the weekly notes ("Base 1 - week 2 · 10 h · 480 TSS") in sync with
   intervals.icu. Writing them to intervals.icu the first time needs the athlete's OK.
 - Races come from the intervals.icu calendar (RACE_A/B/C). Propose adding missing races; add them only after a yes.

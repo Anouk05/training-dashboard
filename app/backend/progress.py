@@ -113,7 +113,7 @@ def _ef_trend(pts: list[dict]) -> dict | None:
 
 def _test_results(sport: str) -> list[dict]:
     """Tests done: workouts named like a protocol in library/tests.yaml (result from the coach report, else read from
-    the workout), races and time trials for runs, plus results logged by hand in plans/tests.yaml."""
+    the workout), races and time trials for runs, plus results logged by hand in data/plans/tests.yaml."""
     protos = (cached(TESTS_LIB, read_yaml) or {}).get("tests", {}).get(sport, [])
     out = []
     for a in acts() if sport != "strength" else []:
@@ -190,4 +190,4 @@ def progress() -> dict:
         out[sport] = {"ef": {"unit": "W/beat" if sport == "ride" else "m/beat", "points": pts, "trend": trend, "skipped": skipped},
                       "tests": _test_results(sport), "thresholds": thresholds, "options": protos.get(sport, []),
                       "repeats": repeats, "sessions": sum(1 for a in acts() if a["sport"] == ("str" if sport == "strength" else sport))}
-    return {"sports": out, "log_file": "plans/tests.yaml", "tests_file": "library/tests.yaml"}
+    return {"sports": out, "log_file": "data/plans/tests.yaml", "tests_file": "library/tests.yaml"}

@@ -5,16 +5,8 @@
 # launch config has your home-folder paths
 .claude/launch.json
 
-# ---- Personal data: synced from Garmin / intervals.icu, or about your body and health
-garmin_data/
-intervals_data/
-nutrition/intake/
-nutrition/fuel.json
-nutrition/recipes.yaml
-notion_data/
-reports/
-# your plans, goals, races and results
-plans/
+# ---- Personal data: synced data, plans, reports, food log and recipes
+data/
 # design mockups were built from a snapshot of your real data
 design/
 

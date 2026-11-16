@@ -14,17 +14,20 @@ import yaml
 
 
 ROOT = Path(__file__).resolve().parents[2]
-if str(ROOT) not in sys.path:  # the sync scripts (intervals_sync, garmin/) live in the project root
+if str(ROOT) not in sys.path:  # the sync clients live in sync/ in the project root
     sys.path.insert(0, str(ROOT))
 
 
-GARMIN = ROOT / "garmin_data"
+DATA = ROOT / "data"  # everything personal: synced data, plans, reports, food log (never in git)
+
+
+GARMIN = DATA / "garmin"
 
 
 DETAILS = GARMIN / "details"
 
 
-PLANS = ROOT / "plans"
+PLANS = DATA / "plans"
 
 
 LIBRARY = ROOT / "library" / "workouts.yaml"
@@ -33,10 +36,10 @@ LIBRARY = ROOT / "library" / "workouts.yaml"
 RULES = ROOT / "coach" / "rules.yaml"
 
 
-ICU = ROOT / "intervals_data"
+ICU = DATA / "intervals"
 
 
-REPORTS = ROOT / "reports" / "workouts"
+REPORTS = DATA / "reports" / "workouts"
 
 
 # load per hour by intensity, calibrated on intervals.icu's load for your planned workouts (50′ Z2 run = 54, 30′ at threshold = 69)

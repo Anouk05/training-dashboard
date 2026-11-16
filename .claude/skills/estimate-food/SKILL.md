@@ -1,6 +1,6 @@
 ---
 name: estimate-food
-description: Estimate kcal, carbs, protein and fat for meals in the Fuel food log (nutrition/intake/*.json) that have no numbers yet, and give a short verdict on the day's intake. Use when the user asks to "estimate my food log", "how much did I eat", or in the evening scheduled run.
+description: Estimate kcal, carbs, protein and fat for meals in the Fuel food log (data/nutrition/intake/*.json) that have no numbers yet, and give a short verdict on the day's intake. Use when the user asks to "estimate my food log", "how much did I eat", or in the evening scheduled run.
 ---
 
 # Estimate the food log
@@ -8,12 +8,12 @@ description: Estimate kcal, carbs, protein and fat for meals in the Fuel food lo
 Work from the project root (the folder with CLAUDE.md).
 
 ## 1. Find meals to estimate
-Files: `nutrition/intake/<YYYY-MM-DD>.json`, each `{"meals": [{id, slot, time, text, kcal, carbs, protein, fat, source}]}`.
+Files: `data/nutrition/intake/<YYYY-MM-DD>.json`, each `{"meals": [{id, slot, time, text, kcal, carbs, protein, fat, source}]}`.
 Look at the last 7 days. A meal needs an estimate when `kcal` is null. Leave meals with `source: "you"` untouched
 (the user entered those numbers). Nothing to estimate → say so and go to step 4.
 
 ## 2. Estimate
-First check `nutrition/recipes.yaml` (your own recipes, kept out of git; start from `recipes.example.yaml`): when a meal names one of those recipes, use its `per_serving` values
+First check `data/nutrition/recipes.yaml` (your own recipes, kept out of git; start from `nutrition/recipes.example.yaml`): when a meal names one of those recipes, use its `per_serving` values
 (scaled to the portion described). When the user gives a new recipe with amounts, add it there.
 For each meal, estimate kcal, carbs, protein and fat (grams) from the description. The text may be Dutch.
 - Use typical (Dutch) portions unless the text gives amounts: slice of bread 35–40 g (wholemeal ~85–90 kcal, 14–15 g carbs, 3.5–4 g protein),
@@ -31,7 +31,7 @@ the estimate was made (the Fuel page shows it when the meal is clicked):
 prefix guessed amounts with `~`. The meal's kcal/carbs/protein/fat must equal the sum of its items. Also set
 `"source": "estimate"` and `"assumed": "<one short line on what you assumed>"`. Keep every other field and meal as it is.
 When the user corrects an amount, update that item and the meal totals.
-Only write inside `nutrition/intake/`.
+Only write inside `data/nutrition/intake/`.
 
 ## 3. Check the day
 Get the day's verdict with `curl -s localhost:8765/api/fuel/day/<date>` (or `.venv/bin/python -c` with

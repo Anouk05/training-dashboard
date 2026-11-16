@@ -4,7 +4,8 @@ A training dashboard for endurance training. It pulls data from Garmin and
 intervals.icu, and optionally gym sessions from Notion. It shows your week, season plan, workouts, progress,
 recovery and fuelling. Claude Code skills help build an annual training plan, plan training weeks and analyse workouts.
 
-Everything runs on your own computer. Your data stays in local folders that are kept out of git.
+Everything runs on your own computer. Your data (synced data, plans, reports, food log) stays in `data/`, which is
+kept out of git.
 
 ![The Today page, with demo data](docs/today.png)
 
@@ -34,18 +35,11 @@ Fill in your keys in `.env`. Leave out the Notion lines if you don't use Notion 
 ### Get your data
 
 ```bash
-.venv/bin/python garmin_sync.py
+.venv/bin/python -m sync
 ```
 
-```bash
-.venv/bin/python intervals_sync.py
-```
-
-```bash
-.venv/bin/python notion_sync.py
-```
-
-Later syncs only fetch what's new. The **Sync** button in the dashboard runs all three.
+This syncs Garmin, intervals.icu and (if set up) Notion. Later syncs only fetch what's new, and the **Sync** button
+in the dashboard does the same. To sync one source: `python -m sync garmin`, `intervals` or `notion`.
 
 ### Start application
 

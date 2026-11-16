@@ -95,7 +95,7 @@ export const RATING: Record<string, [string, string]> = {
   missed: ['Missed the mark', '#ff7a7a'], test: ['Test', '#c79bff'], unplanned: ['Unplanned', '#8b8b97'],
 }
 
-/** A coach report from reports/workouts: verdict, rating, flags and its short markdown body. */
+/** A coach report from data/reports/workouts: verdict, rating, flags and its short markdown body. */
 export function Analysis({ a }: { a: any }) {
   const [label, color] = RATING[a.rating] ?? ['', '#8b8b97']
   return <>

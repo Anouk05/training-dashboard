@@ -1,5 +1,5 @@
 // Annual training plan (ATP) in Friel's format: one row per week with races, priority, period, volume,
-// weights phase and an X per ability for swim, bike and run. Data: plans/atp-*.yaml + the intervals.icu calendar.
+// weights phase and an X per ability for swim, bike and run. Data: data/plans/atp-*.yaml + the intervals.icu calendar.
 import { useState } from 'react'
 import { Card, Loading, useApi } from '../components/ui'
 import { addDays, api, fd } from '../lib/util'
@@ -23,7 +23,7 @@ export default function Atp({ refresh }: { refresh: number }) {
   const [saveErr, setSaveErr] = useState<string | null>(null)
   const [saving, setSaving] = useState(0)
   if (!p) return <Loading error={error} />
-  if (!p.weeks) return <div className="empty">No annual plan yet. Ask Claude to build one: it's saved in plans/atp-&lt;season&gt;.yaml.</div>
+  if (!p.weeks) return <div className="empty">No annual plan yet. Ask Claude to build one: it's saved in data/plans/atp-&lt;season&gt;.yaml.</div>
 
   const today = new Date().toISOString().slice(0, 10)
   const isNow = (w: any) => w.start <= today && today < addDays(w.start, 7)

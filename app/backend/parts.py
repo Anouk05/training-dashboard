@@ -10,7 +10,7 @@ import re
 from .store import ICU
 from .workouts import _step_kind, _step_minutes
 
-import intervals_sync  # project root (store puts it on sys.path)
+from sync import intervals as intervals_sync  # store puts the project root on sys.path
 
 CACHE = ICU / "parts"
 

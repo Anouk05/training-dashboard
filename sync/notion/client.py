@@ -1,4 +1,4 @@
-"""Notion API client: settings from .env, the database ids in notion_data/config.json, and small text helpers."""
+"""Notion API client: settings from .env, the database ids in data/notion/config.json, and small text helpers."""
 
 from __future__ import annotations
 
@@ -9,8 +9,8 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
-DATA_DIR = ROOT / "notion_data"
+ROOT = Path(__file__).resolve().parents[2]  # project root: .env, data/notion/
+DATA_DIR = ROOT / "data" / "notion"
 CONFIG = DATA_DIR / "config.json"
 API = "https://api.notion.com/v1"
 VERSION = "2022-06-28"
@@ -92,7 +92,7 @@ def config() -> dict:
 
 
 def save_config(cfg: dict) -> None:
-    DATA_DIR.mkdir(exist_ok=True)
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
     CONFIG.write_text(json.dumps(cfg, indent=1))
 
 

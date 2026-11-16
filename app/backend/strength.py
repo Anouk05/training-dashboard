@@ -1,4 +1,4 @@
-"""Strength training: the gym sessions you log in Notion (notion_data/strength.csv), the weight-lifting phase from the
+"""Strength training: the gym sessions you log in Notion (data/notion/strength.csv), the weight-lifting phase from the
 annual plan, the phase guide from coach/strength.md, and a suggestion per exercise for the next session."""
 
 from __future__ import annotations
@@ -7,13 +7,13 @@ import re
 from collections import defaultdict
 from datetime import date, timedelta
 
-from .store import cached, num, PLANS, read_csv, read_yaml, ROOT
+from .store import cached, DATA, num, PLANS, read_csv, read_yaml, ROOT
 from .sources import acts, calendar, icu_activities
 
-# sync client in the project root (store puts it on sys.path)
-from notion.log import ROUTINE
+# sync client in sync/ (store puts the project root on sys.path)
+from sync.notion.log import ROUTINE
 
-LOG = ROOT / "notion_data" / "strength.csv"
+LOG = DATA / "notion" / "strength.csv"
 GUIDE = ROOT / "coach" / "strength.md"
 STEP = 2.5  # kg: smallest sensible load change on most machines and bars
 
@@ -105,7 +105,7 @@ def _round(kg: float) -> float:
 # --------------------------------------------------------------------------- suggestions
 
 def known_maxes() -> dict[str, float]:
-    """One-rep maxes you entered yourself (plans/strength.yaml), by exercise name in lower case."""
+    """One-rep maxes you entered yourself (data/plans/strength.yaml), by exercise name in lower case."""
     f = PLANS / "strength.yaml"
     return {k.lower(): float(v) for k, v in ((cached(f, read_yaml) or {}).get("maxes") or {}).items() if v} if f.exists() else {}
 

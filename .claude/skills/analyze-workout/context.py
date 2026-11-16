@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """Gather everything needed to analyse one completed workout, as compact JSON.
 
-Usage (from the Sport folder):
-    .venv/bin/python tools/workout_context.py --pending        # completed workouts of the last 7 days without a report
-    .venv/bin/python tools/workout_context.py latest           # context for the most recent workout
-    .venv/bin/python tools/workout_context.py 12345678901      # context for one activity id
+Usage (from the project root):
+    .venv/bin/python .claude/skills/analyze-workout/context.py --pending    # last 7 days' workouts without a report
+    .venv/bin/python .claude/skills/analyze-workout/context.py latest       # the most recent workout
+    .venv/bin/python .claude/skills/analyze-workout/context.py 12345678901  # one activity id
 
-Used by the analyze-workout skill; reports are written to reports/workouts/<date>-<id>.md.
+Used by the analyze-workout skill; reports are written to data/reports/workouts/<date>-<id>.md.
 """
 
 from __future__ import annotations
@@ -17,11 +17,11 @@ import sys
 from datetime import date, timedelta
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[3]  # project root (.claude/skills/analyze-workout/ → root)
 sys.path.insert(0, str(ROOT))
 from app.backend import activity, body, sources, store, week, workouts  # noqa: E402
 
-REPORTS = ROOT / "reports" / "workouts"
+REPORTS = store.REPORTS
 
 
 def report_path(a: dict) -> Path:

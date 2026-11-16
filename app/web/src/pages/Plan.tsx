@@ -112,6 +112,6 @@ function History({ refresh }: { refresh: number }) {
         </div>)}
       </div>
     </div>
-    <div className="muted" style={{ fontSize: 12, marginTop: 14 }}>Goals live in <span className="mono" style={{ color: 'var(--soft)' }}>plans/seasons.yaml</span>. Tell Claude what you aimed for each season, and each goal gets marked as achieved or not.</div>
+    <div className="muted" style={{ fontSize: 12, marginTop: 14 }}>Goals live in <span className="mono" style={{ color: 'var(--soft)' }}>data/plans/seasons.yaml</span>. Tell Claude what you aimed for each season, and each goal gets marked as achieved or not.</div>
   </>
 }

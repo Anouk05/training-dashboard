@@ -1,10 +1,9 @@
-#!/usr/bin/env python3
-"""Incremental intervals.icu sync -> intervals_data/.
+"""Incremental intervals.icu sync -> data/intervals/.
 
-Usage:
-    python3 intervals_sync.py
+Usage (from the project root):
+    python -m sync intervals
 
-Outputs (in ./intervals_data/):
+Outputs (in ./data/intervals/):
     activities.csv   one row per activity: intervals load, RPE, feel, your notes, link to the Garmin id
     wellness.csv     one row per day: fitness (CTL), fatigue (ATL), ramp rate, subjective scores
     events.json      the calendar: planned workouts, notes, races, season starts (fully refreshed each run)
@@ -26,8 +25,8 @@ import urllib.request
 from datetime import date, timedelta
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent
-DATA_DIR = ROOT / "intervals_data"
+ROOT = Path(__file__).resolve().parents[1]  # project root: .env, data/intervals/
+DATA_DIR = ROOT / "data" / "intervals"
 BASE_URL = "https://intervals.icu/api/v1"
 ACTIVITIES_CSV = DATA_DIR / "activities.csv"
 WELLNESS_CSV = DATA_DIR / "wellness.csv"
@@ -112,7 +111,7 @@ def read_csv(path: Path) -> list[dict]:
 
 
 def write_csv(path: Path, rows: list[dict], columns: list[str]) -> None:
-    DATA_DIR.mkdir(exist_ok=True)
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(".tmp")
     with tmp.open("w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=columns, extrasaction="ignore")
@@ -189,7 +188,7 @@ def sync_events() -> list[dict]:
     oldest, newest = date.fromisoformat(EVENTS_FROM), t + timedelta(days=EVENTS_AHEAD_DAYS)
     rows = get(f"/athlete/{{athlete}}/events?oldest={oldest}&newest={newest}") or []
     out = [{k: e.get(k) for k in EVENT_KEYS} for e in rows]
-    DATA_DIR.mkdir(exist_ok=True)
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
     EVENTS_JSON.write_text(json.dumps({"synced": t.isoformat(), "oldest": oldest.isoformat(), "events": out}, indent=1))
     print(f"intervals calendar: {len(out)} events ({oldest} .. {newest})")
     return out
@@ -242,7 +241,7 @@ def sync_settings() -> list[dict]:
     """Heart-rate and power zones per sport, as set in intervals.icu (the dashboard's reference zones)."""
     keys = ["types", "lthr", "max_hr", "hr_zones", "hr_zone_names", "ftp", "power_zones", "power_zone_names"]
     out = [{k: s.get(k) for k in keys} for s in (get("/athlete/{athlete}") or {}).get("sportSettings", [])]
-    DATA_DIR.mkdir(exist_ok=True)
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
     SETTINGS_JSON.write_text(json.dumps(out, indent=1))
     print(f"intervals settings: zones for {len(out)} sport groups")
     return out
@@ -321,6 +320,3 @@ def sync() -> None:
     sync_wellness()
     sync_events()
 
-
-if __name__ == "__main__":
-    sync()

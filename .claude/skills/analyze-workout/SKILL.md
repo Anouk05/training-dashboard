@@ -10,19 +10,19 @@ Work from the project root (the folder with CLAUDE.md).
 
 ## 1. Get fresh data
 ```bash
-python3 garmin_sync.py && python3 intervals_sync.py
+.venv/bin/python -m sync garmin && .venv/bin/python -m sync intervals
 ```
 If a sync fails (network, rate limit), continue with the data that's there and say so in your reply.
 
 ## 2. Pick the workouts
 - An id or `latest`: just that one.
-- No argument: `.venv/bin/python tools/workout_context.py --pending` lists workouts without a report.
+- No argument: `.venv/bin/python .claude/skills/analyze-workout/context.py --pending` lists workouts without a report.
   Nothing pending → reply "No new workouts to analyse." and stop.
 - More than 5 pending: analyse the 5 most recent, list the rest as skipped.
 
 ## 3. Gather context (per workout)
 ```bash
-.venv/bin/python tools/workout_context.py <id>
+.venv/bin/python .claude/skills/analyze-workout/context.py <id>
 ```
 Read once per run as well: `coach/principles.md` (and `coach/principles.local.md` if present), `coach/rules.yaml`, and the athlete context in memory
 (current season and goals, injuries or health notes to keep in mind).
@@ -52,7 +52,7 @@ Be concrete and honest. Use the numbers. Don't praise by default; say what was g
 Never invent data that isn't in the JSON. If heart rate or power is missing, say what that limits.
 
 ## 5. Write the report
-Write it to `report_path` from the JSON (e.g. `reports/workouts/2026-11-04-12345678901.md`), in English.
+Write it to `report_path` from the JSON (e.g. `data/reports/workouts/2026-11-04-12345678901.md`), in English.
 The workout page already shows distance, time, pace/power, heart rate, load, RPE, the heart-rate chart and time in
 zones right above the report, so **don't repeat those numbers**. Only use a number when it carries the point
 (drift, a comparison with earlier sessions, a test result). Short, scannable, no filler:

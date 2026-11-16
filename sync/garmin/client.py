@@ -17,10 +17,10 @@ from datetime import date, timedelta
 from pathlib import Path
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]  # project root: .env, data/garmin/
 
 
-DATA_DIR = ROOT / "garmin_data"
+DATA_DIR = ROOT / "data" / "garmin"
 
 
 TOKEN_CACHE = ROOT / ".garmin_token.json"
@@ -153,7 +153,7 @@ def read_csv(path: Path) -> list[dict]:
 
 
 def write_csv(path: Path, rows: list[dict], columns: list[str]) -> None:
-    DATA_DIR.mkdir(exist_ok=True)
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(".tmp")
     with tmp.open("w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=columns, extrasaction="ignore")

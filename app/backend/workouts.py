@@ -10,8 +10,8 @@ from datetime import date, timedelta
 from .store import as_date, cached, clean_name, fmt_dur, ICU_SPORT, iso_week, LOAD_PER_HOUR, num, PLANS, read_yaml
 from .sources import acts, analyses, ev_date, events, ftp_for, library
 
-# sync clients in the project root (store puts it on sys.path)
-import intervals_sync
+# sync clients in sync/ (store puts the project root on sys.path)
+from sync import intervals as intervals_sync
 
 
 def week_plan(week_start: date) -> dict:
