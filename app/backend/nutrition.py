@@ -90,11 +90,12 @@ def fuel_target(w: dict, next_hours: float | None = None) -> dict:
 
 def _next_session_hours(start_iso: str, minutes: float) -> float | None:
     """Hours from the end of this session to the next one: a later recorded workout, or a planned one on a later day
-    (planned workouts have no time of day, so they count as starting at 12:00)."""
+    (a planned workout without a time of day counts as starting at 12:00)."""
     end = datetime.fromisoformat(start_iso[:19]) + timedelta(minutes=minutes)
     done = [a["start"] for a in sources.acts() if a["start"] > end - timedelta(minutes=5) and a["sport"] != "str"]
-    planned = [datetime.fromisoformat(e["start_date_local"][:10] + "T12:00:00") for e in sources.events()
-               if e["category"] == "WORKOUT" and e["start_date_local"][:10] > start_iso[:10]]
+    planned = [datetime.fromisoformat(e["start_date_local"][:10] + "T" + (workouts.event_time(e) or "12:00")) for e in sources.events()
+               if e["category"] == "WORKOUT" and not e.get("paired_activity_id")
+               and (e["start_date_local"][:10] > start_iso[:10] or workouts.event_time(e))]
     nxt = [t for t in done + planned if t > end - timedelta(minutes=5)]
     return round(max(0.0, (min(nxt) - end).total_seconds() / 3600), 1) if nxt else None
 
@@ -219,11 +220,15 @@ def day(d: str) -> dict:
     kg, b = _kg(), body()
     dd = date.fromisoformat(d)
     done = [a for a in sources.acts() if a["start"].date() == dd]
-    planned = [] if done else [workouts.planned_from_event(e) for e in sources.calendar(dd, dd, ("WORKOUT",))]
-    hours = sum(a["minutes"] for a in done) / 60 or sum(p["minutes"] for p in planned) / 60
-    ex_kcal = sum(num(a.get("calories")) or 0 for a in done)
-    if not done and planned:  # estimate a planned day's burn from load-free rule of thumb: ~8 kcal/min endurance, 5 strength
-        ex_kcal = sum(p["minutes"] * (5 if p["sport"] == "str" else 8) for p in planned)
+    done_icu = {str(a.get("icu_id") or "") for a in done}
+    # what's done plus what's still planned today (a planned workout that's been done counts once, as the activity)
+    planned = [p for p in (workouts.planned_from_event(e) for e in sources.calendar(dd, dd, ("WORKOUT",)))
+               if not (p["done_id"] and str(p["done_id"]) in done_icu)]
+    if done and dd < date.today():
+        planned = []  # a past day: only what you actually did
+    hours = (sum(a["minutes"] for a in done) + sum(p["minutes"] for p in planned)) / 60
+    # planned burn by rule of thumb: ~8 kcal/min endurance, ~5 kcal/min strength
+    ex_kcal = sum(num(a.get("calories")) or 0 for a in done) + sum(p["minutes"] * (5 if p["sport"] == "str" else 8) for p in planned)
     hard = any(_hard(workouts.abilities_for(e), workouts.planned_from_event(e)["load"], workouts.planned_from_event(e)["minutes"])
                for e in sources.calendar(dd, dd, ("WORKOUT",)))
     # daily carbs: 3–5 g/kg light, 5–7 moderate (≈1 h/day), 6–10 high (1–3 h); protein 1.6–2.0 g/kg
@@ -232,8 +237,10 @@ def day(d: str) -> dict:
     missing = sum(1 for m in meals if num(m.get("kcal")) is None)
     ea = round((tot["kcal"] - ex_kcal) / b["ffm"]) if b.get("ffm") and tot["kcal"] and not missing else None
     return {"date": d, "meals": meals, "totals": tot, "to_estimate": missing,
-            "training": {"hours": round(hours, 1), "exercise_kcal": round(ex_kcal), "hard": hard, "planned": bool(planned and not done)},
-            "targets": {"carbs": [round(carb_lo * kg), round(carb_hi * kg)], "carbs_gkg": [carb_lo, carb_hi],
+            "training": {"hours": round(hours, 1), "exercise_kcal": round(ex_kcal), "hard": hard, "planned": bool(planned)},
+            # energy: 30 kcal per kg fat-free mass is the floor, 45 is enough for everything besides training
+            "targets": {"kcal": [round((30 * ffm + ex_kcal) / 50) * 50, round((45 * ffm + ex_kcal) / 50) * 50] if (ffm := b.get("ffm")) else None,
+                        "carbs": [round(carb_lo * kg), round(carb_hi * kg)], "carbs_gkg": [carb_lo, carb_hi],
                         "protein": [round(1.6 * kg), round(2.0 * kg)], "ea_ok": 45, "ea_low": 30},
             "per_kg": {"carbs": round(tot["carbs"] / kg, 1) if tot["carbs"] else None, "protein": round(tot["protein"] / kg, 1) if tot["protein"] else None},
             "ea": ea, "body": b}

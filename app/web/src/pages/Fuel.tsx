@@ -34,14 +34,14 @@ export default function Fuel({ refresh, day }: { refresh: number; day?: string }
           <thead><tr><th /><th>kcal</th><th>carbs</th><th>prot.</th><th>EA</th></tr></thead>
           <tbody>{o.days.map((x: any) => <tr key={x.date} className={x.date === d ? 'on' : ''} onClick={() => (location.hash = `fuel/${x.date}`)}>
             <td>{fd(x.date, { weekday: 'short', day: 'numeric' })}{x.n_meals ? '' : <span className="muted"> · –</span>}</td>
-            <td className="mono">{x.n_meals ? x.totals.kcal : ''}</td>
+            <td className={`mono ${x.n_meals && x.targets.kcal ? (x.totals.kcal >= x.targets.kcal[0] ? 'ok' : 'low') : ''}`}>{x.n_meals ? x.totals.kcal : ''}</td>
             <td className={`mono ${x.per_kg.carbs != null ? (x.per_kg.carbs >= x.targets.carbs_gkg[0] ? 'ok' : 'low') : ''}`}>{x.per_kg.carbs ?? ''}</td>
             <td className={`mono ${x.per_kg.protein != null ? (x.per_kg.protein >= 1.6 ? 'ok' : 'low') : ''}`}>{x.per_kg.protein ?? ''}</td>
             <td className={`mono ${x.ea != null ? (x.ea >= 45 ? 'ok' : x.ea >= 30 ? 'mid' : 'low') : ''}`}>{x.ea ?? ''}</td>
           </tr>)}</tbody>
         </table>
         <div className="muted" style={{ fontSize: 11.5, lineHeight: 1.5, marginTop: 10 }}>
-          Carbs and protein in g per kg. EA = energy availability: kcal eaten minus training kcal, per kg fat-free mass;
+          kcal is green when it reaches the day's minimum (EA 30). Carbs and protein in g per kg. EA = energy availability: kcal eaten minus training kcal, per kg fat-free mass;
           45+ is enough, 30–45 is low for a while, under 30 is too low.
           {o.checked > 0 && <> {o.on_target} of {o.checked} checked workouts were fuelled to target.</>}</div>
       </Card>
@@ -90,7 +90,8 @@ function DayLog({ d, dd, setDay, today }: { d: string; dd: any; setDay: (x: any)
       <button disabled={d >= today} onClick={() => (location.hash = `fuel/${addDays(d, 1)}`)}>›</button></span></span>}
     right={`${dd.training.hours} h training${dd.training.planned ? ' planned' : ''} · ~${dd.training.exercise_kcal} kcal`}>
     <div className="ftot">
-      <div><div className="muted">Eaten</div><div className="big" style={{ fontSize: 24 }}>{t.kcal}<small> kcal</small></div>
+      <div><div className="muted">Eaten <span className="mono">{t.kcal} kcal</span>{tg.kcal && <> · target {tg.kcal[0].toLocaleString('en')}–{tg.kcal[1].toLocaleString('en')}</>}</div>
+        {tg.kcal ? bar(t.kcal, tg.kcal[0], tg.kcal[1]) : <div className="big" style={{ fontSize: 24 }}>{t.kcal}<small> kcal</small></div>}
         {dd.ea != null && <div className={`mono ea ${dd.ea >= 45 ? 'ok' : dd.ea >= 30 ? 'mid' : 'low'}`}>EA {dd.ea} kcal/kg FFM</div>}</div>
       <div><div className="muted">Carbs <span className="mono">{t.carbs} g</span> · target {tg.carbs[0]}–{tg.carbs[1]} g ({tg.carbs_gkg[0]}–{tg.carbs_gkg[1]} g/kg)</div>{bar(t.carbs, tg.carbs[0], tg.carbs[1])}</div>
       <div><div className="muted">Protein <span className="mono">{t.protein} g</span> · target {tg.protein[0]}–{tg.protein[1]} g (1.6–2.0 g/kg)</div>{bar(t.protein, tg.protein[0], tg.protein[1])}</div>
