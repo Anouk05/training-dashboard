@@ -8,7 +8,7 @@ from collections import defaultdict
 from datetime import date, timedelta
 
 from .store import as_date, cached, clean_name, fmt_dur, ICU_SPORT, iso_week, LOAD_PER_HOUR, num, PLANS, read_yaml
-from .sources import acts, analyses, ev_date, ftp_for, library
+from .sources import acts, analyses, ev_date, events, ftp_for, library
 
 # sync clients in the project root (store puts it on sys.path)
 import intervals_sync
@@ -110,6 +110,28 @@ def parse_steps(desc: str | None) -> list[list]:
 ABILITY_ORDER = ("AE", "MF", "SS", "ME", "AC", "SP", "T")
 
 
+def step_zones(e: dict) -> list[tuple[float, int]]:
+    """(seconds, zone) per step of a planned workout's text. Power targets count by % of FTP (Z1 < 56 %, Z2 < 76 %,
+    Z3 < 91 %, Z4 < 106 %, Z5 < 150 %, above that Z7), heart-rate/pace targets by their zone; steps without either are skipped."""
+    ftp = ftp_for(e.get("type") or "")
+    out = []
+    for line in (e.get("description") or "").splitlines():
+        b = line.strip()
+        if not b.startswith("-"):
+            continue
+        dm = re.search(r"(\d+(?:\.\d+)?)\s*(h|m(?!\w)|min|s(?!\w))", b)
+        secs = 0 if not dm else float(dm[1]) * {"h": 3600, "m": 60, "min": 60, "s": 1}[dm[2]]
+        z = [int(x) for x in re.findall(r"z(\d)", b, re.I)]
+        zone = max(z) if z else None
+        w = [float(x) for r in re.findall(r"(\d+)(?:\s*-\s*(\d+))?\s*w\b", b, re.I) for x in r if x]
+        rel = (sum(w) / len(w) / ftp) if (w and ftp) else None  # a range like 210-225w counts at its middle
+        if rel is not None:
+            zone = 1 if rel < .56 else 2 if rel < .76 else 3 if rel < .91 else 4 if rel < 1.06 else 5 if rel < 1.5 else 7
+        if zone is not None:
+            out.append((secs, zone))
+    return out
+
+
 def abilities_for(e: dict) -> list[str]:
     """Friel abilities a planned workout trains. An "Abilities: AE, SS" line in the description wins; otherwise
     they're read from the steps: easy time = aerobic endurance, drills/strides/cadence = speed skills,
@@ -132,22 +154,8 @@ def abilities_for(e: dict) -> list[str]:
         out.add("SS")
     if re.search(r"hill|big gear|low cadence|force|paddle|torque|strength endurance", text):
         out.add("MF")
-    ftp = ftp_for(e.get("type") or "")
     easy_min = 0.0
-    for line in desc.splitlines():
-        b = line.strip()
-        if not b.startswith("-"):
-            continue
-        dm = re.search(r"(\d+(?:\.\d+)?)\s*(h|m(?!\w)|min|s(?!\w))", b)
-        secs = 0 if not dm else float(dm[1]) * {"h": 3600, "m": 60, "min": 60, "s": 1}[dm[2]]
-        z = [int(x) for x in re.findall(r"z(\d)", b, re.I)]
-        zone = max(z) if z else None
-        w = [float(x) for r in re.findall(r"(\d+)(?:\s*-\s*(\d+))?\s*w\b", b, re.I) for x in r if x]
-        rel = (sum(w) / len(w) / ftp) if (w and ftp) else None  # a range like 210-225w counts at its middle
-        if rel is not None:  # map %FTP to a zone-like level
-            zone = 1 if rel < .56 else 2 if rel < .76 else 3 if rel < .91 else 4 if rel < 1.06 else 5 if rel < 1.5 else 7
-        if zone is None:
-            continue
+    for secs, zone in step_zones(e):
         if zone <= 2:
             easy_min += secs / 60
         elif zone <= 4 and secs >= 180:
@@ -159,6 +167,12 @@ def abilities_for(e: dict) -> list[str]:
     if easy_min >= 20 or (not out and re.search(r"easy|endurance|long|aerobic|z2", text)):
         out.add("AE")
     return [a for a in ABILITY_ORDER if a in out]
+
+
+def event_time(e: dict) -> str | None:
+    """Time of day of a planned workout ("07:30"), or None when it's only planned for the day (00:00 in intervals.icu)."""
+    t = (e.get("start_date_local") or "")[11:16]
+    return t if t and t != "00:00" else None
 
 
 def planned_from_event(e: dict) -> dict:
@@ -176,24 +190,42 @@ def planned_from_event(e: dict) -> dict:
     load = e.get("icu_training_load") or round(sum(m / 60 * LOAD_PER_HOUR[k] for k, m in split.items()))
     lines = [l.strip(" -") for l in (e.get("description") or "").splitlines() if l.strip()]
     km = (e.get("distance") or 0) / 1000
-    return {"date": e["start_date_local"][:10], "event_id": e["id"], "workout": None, "name": e["name"], "type": e.get("type"),
+    return {"date": e["start_date_local"][:10], "time": event_time(e), "event_id": e["id"], "workout": None, "name": e["name"], "type": e.get("type"),
             "sport": ICU_SPORT.get(e.get("type") or "", "other"), "summary": " · ".join(lines[:4]),
             "description": e.get("description") or "", "targets": {}, "minutes": round(minutes), "load": round(load),
             "zones": [round(split["rest"]), round(split["easy"]), round(split["moderate"]), round(split["hard"]), 0],
             "hard_min": round(split["hard"]), "sub": " · ".join(x for x in [f"{km:.1f} km" if km else "", fmt_dur(minutes) if minutes else ""] if x),
-            "steps": steps, "done_id": e.get("paired_activity_id"), "abilities": abilities_for(e)}
+            "steps": steps, "done_id": e.get("paired_activity_id"), "abilities": (ab := abilities_for(e)),
+            "intensity": intensity_of(ab, sum(t for t, z in step_zones(e) if z == 3) / 60)}
+
+
+def _time_of(event_id: int) -> str:
+    e = next((x for x in events() if x["id"] == event_id), None)
+    return (e or {}).get("start_date_local", "")[11:19] or "00:00:00"
 
 
 def move_event(event_id: int, to: date) -> None:
-    """Move a planned workout in intervals.icu (it follows to the watch), then refresh the local calendar copy."""
-    intervals_sync.move_event(event_id, to)
+    """Move a planned workout in intervals.icu (it follows to the watch), keeping its time of day, then refresh the
+    local calendar copy."""
+    intervals_sync.move_event(event_id, to, _time_of(event_id))
+    intervals_sync.sync_events()
+
+
+def set_time(event_id: int, time: str | None) -> None:
+    """Set the time of day of a planned workout ("07:30"), or clear it (None: just planned for the day)."""
+    e = next((x for x in events() if x["id"] == event_id), None)
+    if not e:
+        raise ValueError("planned workout not found; sync first")
+    if time and not re.fullmatch(r"([01]\d|2[0-3]):[0-5]\d", time):
+        raise ValueError("time must be HH:MM")
+    intervals_sync.move_event(event_id, date.fromisoformat(e["start_date_local"][:10]), f"{time}:00" if time else "00:00:00")
     intervals_sync.sync_events()
 
 
 def update_event(event_id: int, changes: dict) -> None:
     """Edit a planned workout in intervals.icu, then refresh the local calendar copy."""
     if changes.get("date"):
-        changes["start_date_local"] = f"{changes.pop('date')}T00:00:00"
+        changes["start_date_local"] = f"{changes.pop('date')}T{_time_of(event_id)}"
     intervals_sync.update_event(event_id, changes)
     intervals_sync.sync_events()
 
@@ -272,6 +304,16 @@ def workout_for(a: dict) -> str | None:
         if w.get("match_sport") == a["sport"]:
             return w["id"]
     return None
+
+
+def intensity_of(abilities: list[str], moderate_min: float = 0, hard_min: float = 0) -> str:
+    """Easy, moderate or hard (Friel's 5-2 pattern): advanced abilities, tests and the gym in AA/MT/MS (breakthrough
+    sessions in prep and early base) are hard; strength maintenance and tempo blocks are moderate; the rest is easy."""
+    if set(abilities) & {"ME", "AC", "SP", "T"} or set(abilities) & {"AA", "MT", "MS"} or hard_min >= 10:
+        return "hard"
+    if "SM" in abilities or moderate_min >= 20:
+        return "moderate"
+    return "easy"
 
 
 def is_hard(zones: list[float]) -> bool:

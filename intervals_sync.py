@@ -195,9 +195,9 @@ def sync_events() -> list[dict]:
     return out
 
 
-def move_event(event_id: int, to: date) -> dict:
-    """Move a planned workout to another day (it follows to the watch via intervals.icu)."""
-    return request("PUT", f"/athlete/{{athlete}}/events/{event_id}", {"start_date_local": f"{to.isoformat()}T00:00:00"})
+def move_event(event_id: int, to: date, time: str = "00:00:00") -> dict:
+    """Move a planned workout to another day, or set its time of day (it follows to the watch via intervals.icu)."""
+    return request("PUT", f"/athlete/{{athlete}}/events/{event_id}", {"start_date_local": f"{to.isoformat()}T{time}"})
 
 
 EDITABLE = ("name", "description", "type", "start_date_local")

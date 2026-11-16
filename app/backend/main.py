@@ -208,6 +208,22 @@ async def edit_event(event_id: int, e: WorkoutEdit):
     return week.week(e.week_start)
 
 
+class WorkoutTime(BaseModel):
+    week_start: date
+    time: str | None = None  # "07:30"; None = just planned for the day
+
+
+@app.post("/api/event/{event_id}/time")
+async def set_event_time(event_id: int, t: WorkoutTime):
+    try:
+        await run_in_threadpool(workouts.set_time, event_id, t.time or None)
+    except ValueError as err:
+        raise HTTPException(422, str(err))
+    except RuntimeError as err:
+        raise HTTPException(502, str(err)[:300])
+    return week.week(t.week_start)
+
+
 class WorkoutNew(BaseModel):
     week_start: date
     day: date

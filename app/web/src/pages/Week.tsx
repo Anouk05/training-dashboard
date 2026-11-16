@@ -49,6 +49,22 @@ export default function Week({ refresh, start }: { refresh: number; start?: stri
     setSaving(s => { const n = new Set(s); n.delete(k); return n })
   }
 
+  // Time of day for a planned workout ("" clears it); saved in intervals.icu, so it shows on the watch too.
+  const setTime = async (p: any, time: string) => {
+    const k = keyOf(p)
+    setSaving(s => new Set(s).add(k))
+    setErr(null)
+    try {
+      setData(await api(`/event/${p.event_id}/time`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ week_start: w.start, time: time || null }),
+      }))
+    } catch (e) {
+      setErr(`Couldn't set the time of “${p.name}”: ${e}`)
+    }
+    setSaving(s => { const n = new Set(s); n.delete(k); return n })
+  }
+
   const onOver = (e: DragEvent, date: string) => {
     if (!drag) return
     e.preventDefault()
@@ -84,7 +100,8 @@ export default function Week({ refresh, start }: { refresh: number; start?: stri
       <div key={d.date} className={`wcol ${d.is_today ? 'today' : ''} ${over === d.date ? 'drop' : ''}`}
         onDragOver={e => onOver(e, d.date)} onDragLeave={e => onLeave(e, d.date)}
         onDrop={e => { e.preventDefault(); drop(d.date) }}>
-        <div className="hd"><b>{fd(d.date)}</b><span>{fd(d.date, { day: 'numeric', month: 'short' })}</span></div>
+        <div className={`hd lvl-${d.intensity ?? 'rest'}`} title={d.intensity ? `${d.intensity} day` : 'rest day'}>
+          <span><b>{fd(d.date)}</b>{d.intensity === 'hard' && <i className="dayhard">hard</i>}</span><span>{fd(d.date, { day: 'numeric', month: 'short' })}</span></div>
         {d.notes.map((n: any, i: number) => <div key={i} className={`daynote ${n.race ? 'race' : ''}`}>{n.race ? `◆ ${n.race.replace('RACE_', '')} race · ` : ''}{n.name}</div>)}
         {d.done.map((a: any) => (
           <div className="tile" key={a.id} onClick={() => (location.hash = `workouts/${a.id}`)}>
@@ -103,7 +120,7 @@ export default function Week({ refresh, start }: { refresh: number; start?: stri
             onDragEnd={() => { setOver(null); setDrag(null) }}
             onClick={() => setOpen(o => { const n = new Set(o), k = keyOf(p); n.has(k) ? n.delete(k) : n.add(k); return n })}>
             <span className="grip">⋮⋮</span>
-            <div className="k" style={{ color: SPORT[p.sport][1] }}><span className="dot" style={{ background: SPORT[p.sport][1] }} />{SPORT[p.sport][0]} · planned</div>
+            <div className="k" style={{ color: SPORT[p.sport][1] }}><span className="dot" style={{ background: SPORT[p.sport][1] }} /><span>{SPORT[p.sport][0]} · {p.event_id ? <PlanTime time={p.time} open={open.has(keyOf(p))} onSet={t => setTime(p, t)} /> : 'planned'}</span></div>
             <div className="n">{p.name}</div>
             <div className="m">{p.sub}{p.sub ? ' · ' : ''}load ~{p.load}</div>
             {p.abilities?.length > 0 && <div className="abil">{p.abilities.map((a: string) =>
@@ -165,6 +182,19 @@ export default function Week({ refresh, start }: { refresh: number; start?: stri
     {editing && <WorkoutEditor workout={editing} weekStart={w.start} onClose={() => setEditing(null)}
       onSaved={week => { setData(week); setEditing(null) }} />}
   </>
+}
+
+/** The tile's header reads "Run · planned", or "Run · 07:30" once it has a time of day. On an open tile that part
+ * becomes clickable ("set time" / the time) and turns into a time field; emptying the field clears the time. */
+function PlanTime({ time, open, onSet }: { time: string | null; open: boolean; onSet: (t: string) => void }) {
+  const [edit, setEdit] = useState(false)
+  if (edit) return <input className="ptime-in" type="time" step={300} defaultValue={time ?? ''} autoFocus
+    onClick={e => e.stopPropagation()}
+    onBlur={e => { setEdit(false); if (e.target.value !== (time ?? '')) onSet(e.target.value) }}
+    onKeyDown={e => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); if (e.key === 'Escape') setEdit(false) }} />
+  const label = time ?? (open ? 'set time' : 'planned')
+  return <span className={`ptime ${time ? 'set' : ''} ${open ? 'can' : ''}`} title={open ? 'Time of day (empty = any time)' : undefined}
+    onClick={open ? e => { e.stopPropagation(); setEdit(true) } : undefined}>{label}</span>
 }
 
 /** Share of swim, bike and run time this week (weights left out), planned and done, against the annual plan's target. */

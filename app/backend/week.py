@@ -7,8 +7,12 @@ from datetime import date, timedelta
 from .store import athlete_name, fmt_dur, fmt_pace, iso_week, monday, ROOT, SPORT_NAMES
 from .sources import acts, calendar, ev_date, events, has_calendar, RACE_CATS, rules, zones_for
 from .body import load_series, readiness
-from .workouts import act_summary, is_hard, planned_from_event, planned_session, week_plan, workout_for
+from .workouts import act_summary, intensity_of, is_hard, planned_from_event, planned_session, week_plan, workout_for
 from .atp import sport_split_target
+from .strength import phase_on
+
+
+LEVELS = ["easy", "moderate", "hard"]
 
 
 def week(week_start: date | None = None) -> dict:
@@ -17,9 +21,12 @@ def week(week_start: date | None = None) -> dict:
     today = date.today()
     done = [act_summary(a) for a in acts() if ws <= a["start"].date() <= days[-1]]
     done_icu = {a["icu_id"] for a in done if a["icu_id"]}
+    week_weights = phase_on(ws)  # weights phase of this week in the annual plan
+    planned_level: dict[str, str] = {}
     if has_calendar():
         source, plan = "intervals", {}
         planned = [planned_from_event(e) for e in calendar(ws, days[-1], ("WORKOUT",))]
+        planned_level = {str(p["done_id"]): p["intensity"] for p in planned if p["done_id"]}
         # a planned workout that's been done is shown as the activity instead
         planned = [p for p in planned if not (p["done_id"] and p["done_id"] in done_icu)]
         notes = calendar(ws, days[-1], ("NOTE",) + RACE_CATS)
@@ -33,12 +40,20 @@ def week(week_start: date | None = None) -> dict:
     for d in days:
         ds = d.isoformat()
         dn = [a for a in done if a["date"] == ds]
-        pl = [p for p in planned if p["date"] == ds]
+        pl = sorted((p for p in planned if p["date"] == ds), key=lambda p: p.get("time") or "99")  # timed first, by time
         if source == "yaml" and dn and d <= today:
             pl = []
         day_notes = [{"name": e["name"], "race": e["category"] if e["category"] in RACE_CATS else None}
                      for e in notes if ev_date(e) == d and not e.get("for_week")]
-        out_days.append({"date": ds, "done": dn, "planned": pl, "notes": day_notes, "is_today": d == today})
+        for a in dn:  # completed: the harder of what was planned and the time spent in Z3 / Z4+ (gym: the weights phase)
+            measured = ("hard" if a["sport"] == "str" and (week_weights or "") in ("AA", "MT", "MS") else
+                        "moderate" if a["sport"] == "str" else
+                        intensity_of([], a["zones"][2] if len(a["zones"]) > 2 else 0, sum(a["zones"][3:])))
+            intended = planned_level.get(str(a.get("icu_id") or ""), "easy")
+            a["intensity"] = max(measured, intended, key=LEVELS.index)
+        levels = [x.get("intensity") for x in dn + pl]
+        out_days.append({"date": ds, "done": dn, "planned": pl, "notes": day_notes, "is_today": d == today,
+                         "intensity": "hard" if "hard" in levels else "moderate" if "moderate" in levels else "easy" if levels else None})
 
     by_sport = {}
     for s in ("run", "ride", "swim", "str", "row"):
