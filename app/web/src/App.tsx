@@ -31,7 +31,7 @@ export default function App() {
   // load every page's data in the background so the first click on a tab is instant too
   useEffect(() => {
     const t = setTimeout(() => prefetch('/today', '/week', '/season', '/atp', '/seasons', '/activities?limit=80', '/progress',
-      '/recovery?days=365', '/library', '/fitness?days=180', '/fuel'), 300)
+      '/recovery?days=365', '/library', '/fitness?days=180', '/fuel', '/strength'), 300)
     return () => clearTimeout(t)
   }, [])
 

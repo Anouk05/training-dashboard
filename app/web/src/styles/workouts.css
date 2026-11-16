@@ -96,3 +96,31 @@ table.t.sections td:first-child { padding-left: 6px; }
 .topt .w { margin-top: 6px; font-size: 12px; }
 .eftip { position: absolute; top: 0; width: 230px; pointer-events: none; padding: 10px 12px; border-radius: 12px;
   background: rgba(12,12,16,.94); border: 1px solid rgba(255,255,255,.12); font-size: 12.5px; line-height: 1.55; }
+
+/* strength */
+.sguide { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 14px; font-size: 12px; }
+.sguide b { font-size: 14px; font-weight: 500; }
+.stab { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.stab th { color: var(--mute); font-weight: 400; font-size: 11px; text-align: left; padding: 4px 6px; }
+.stab td { padding: 6px; border-top: 1px solid var(--line); }
+.stab tr.on td { background: rgba(199,155,255,.08); }
+.snext { display: grid; grid-template-columns: 1fr 1.2fr; gap: 12px; padding: 9px 0; border-top: 1px solid var(--line); font-size: 12.5px; }
+.snext .muted { font-size: 11.5px; margin-top: 2px; }
+.snext .t b { color: #c79bff; font-weight: 500; }
+.sexs { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.sex { border-radius: 16px; padding: 12px 14px; background: rgba(255,255,255,.03); border: 1px solid var(--line); font-size: 13px; }
+.ssess { margin-bottom: 14px; }
+.ssess .hd { display: flex; gap: 12px; align-items: baseline; font-size: 13px; margin-bottom: 4px; }
+.ssess .hd a { margin-left: auto; font-size: 11.5px; text-decoration: none; }
+
+/* strength: exercises in the spotlight */
+.sphase .sguide { grid-template-columns: repeat(5, 1fr); margin-bottom: 6px; }
+.sall { font-size: 12px; color: var(--mute); margin-top: 6px; } .sall summary { cursor: pointer; } .sall table { margin-top: 8px; }
+.sexs { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+.sex { padding: 16px; }
+.sex .nm { font-size: 16px; font-weight: 500; }
+.sex .smax { font-size: 13px; margin-top: 2px; } .sex .smax .mono { font-size: 22px; color: #c79bff; }
+.sex .sone { font-size: 12px; padding: 18px 0 10px; }
+.sex .srow { display: flex; justify-content: space-between; gap: 10px; font-size: 12.5px; padding: 6px 0; border-top: 1px solid var(--line); }
+.sex .srow.next .mono { color: #c79bff; font-weight: 500; }
+.sex .swhy { font-size: 11px; line-height: 1.45; margin-top: 2px; }

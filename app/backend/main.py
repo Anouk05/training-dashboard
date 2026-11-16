@@ -9,11 +9,12 @@ from fastapi import FastAPI, HTTPException
 from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel
 
-from . import activity, atp, body, nutrition, progress, season, week, workouts
+from . import activity, atp, body, nutrition, progress, season, strength, week, workouts
 
 # sync clients in the project root (store puts it on sys.path)
 import garmin_sync
 import intervals_sync
+import notion_sync
 
 app = FastAPI(title="Pulse")
 _last_sync: dict = {"at": None, "ok": None}
@@ -146,6 +147,16 @@ def get_progress():
     return progress.progress()
 
 
+@app.get("/api/strength")
+def get_strength():
+    return strength.overview()
+
+
+@app.get("/api/strength/day/{d}")
+def get_strength_day(d: str):
+    return strength.day(d)
+
+
 @app.get("/api/recovery")
 def get_recovery(days: int = 365):
     return body.recovery(days)
@@ -255,6 +266,11 @@ async def sync():
     try:
         await run_in_threadpool(garmin_sync.sync)
         await run_in_threadpool(intervals_sync.sync)
+        try:
+            await run_in_threadpool(notion_sync.sync)  # strength log; optional, never blocks the sync
+            await run_in_threadpool(lambda: notion_sync.push_plan(strength.notion_plan()))  # planned gym sessions + targets
+        except Exception as e:
+            print(f"notion: skipped ({e})")
         _last_sync.update(at=datetime.now().isoformat(timespec="minutes"), ok=True)
         threading.Thread(target=_warm, daemon=True).start()  # new workouts: fetch their details right away
     except Exception as e:  # surface the reason in the UI

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Card, Loading, Seg, useApi } from '../components/ui'
 import { scale } from '../components/charts'
 import { fd, isoWeekNo, pace } from '../lib/util'
+import { StrengthPanel } from '../components/Strength'
 
 // Per sport: efficiency factor over time (aerobic sessions), tests done, current thresholds and the tests you can do.
 const SPORTS: [string, string][] = [['run', 'Run'], ['ride', 'Bike'], ['swim', 'Swim'], ['strength', 'Strength']]
@@ -20,23 +21,20 @@ export default function Progress({ refresh }: { refresh: number }) {
   return <>
     <div className="ph">
       <div><h1>Progress</h1><p>Are you getting fitter? Efficiency on steady sessions, and your tests over time.</p></div>
-      <Seg value={sport} options={SPORTS.map(([k, n]) => [k, `${n} (${p.sports[k].tests.length})`] as [string, string])} onChange={setSport} />
+      <Seg value={sport} options={SPORTS.map(([k, n]) => [k, k === 'strength' ? n : `${n} (${p.sports[k].tests.length})`] as [string, string])} onChange={setSport} />
     </div>
     <div className="grid">
-      {sport !== 'strength' ? <EfCard s={s} sport={sport} /> :
-        <Card span={8} title="Strength">
-          <div className="big">{s.sessions}<small> gym sessions recorded</small></div>
-          <div className="muted" style={{ fontSize: 13, lineHeight: 1.6, marginTop: 10, maxWidth: 560 }}>
-            Strength has no efficiency factor: Garmin doesn't record the weights you lift. Track it with the tests below
-            and log each result in <span className="mono" style={{ color: 'var(--soft)' }}>{p.log_file}</span> (or tell Claude the numbers).</div>
-        </Card>}
-      <Card span={4} title="Thresholds" right="intervals.icu settings">
-        {s.thresholds.length ? s.thresholds.map((t: any) => <div className="test" key={t.label}><span>{t.label}</span><b className="mono">{t.value}</b><span /><span /></div>)
-          : <div className="muted" style={{ fontSize: 13 }}>No thresholds for this sport.</div>}
-        {s.tests[0] && <div className="muted" style={{ fontSize: 12, marginTop: 12 }}>
-          Last test: {s.tests[0].test}, {fd(s.tests[0].date, { day: 'numeric', month: 'short', year: 'numeric' })}</div>}
-      </Card>
+      {sport === 'strength' ? <StrengthPanel refresh={refresh} /> : <>
+        <EfCard s={s} sport={sport} />
+        <Card span={4} title="Thresholds" right="intervals.icu settings">
+          {s.thresholds.length ? s.thresholds.map((t: any) => <div className="test" key={t.label}><span>{t.label}</span><b className="mono">{t.value}</b><span /><span /></div>)
+            : <div className="muted" style={{ fontSize: 13 }}>No thresholds for this sport.</div>}
+          {s.tests[0] && <div className="muted" style={{ fontSize: 12, marginTop: 12 }}>
+            Last test: {s.tests[0].test}, {fd(s.tests[0].date, { day: 'numeric', month: 'short', year: 'numeric' })}</div>}
+        </Card>
+      </>}
 
+      {sport !== 'strength' && <>
       <Card span={12} title="Test results" right={`${s.tests.length} test${s.tests.length === 1 ? '' : 's'}`}>
         {s.tests.length ? <table className="ttab">
           <thead><tr><th>Date</th><th>Test</th><th>Result</th><th /></tr></thead>
@@ -64,6 +62,7 @@ export default function Progress({ refresh }: { refresh: number }) {
         })}</div>
       </Card>
 
+      </>}
       {s.repeats.length > 0 && <Repeats groups={s.repeats} />}
     </div>
   </>
