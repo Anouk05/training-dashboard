@@ -2,7 +2,7 @@
 
 A training dashboard for endurance training. It pulls data from Garmin and
 intervals.icu, and optionally gym sessions from Notion. It shows your week, season plan, workouts, progress,
-recovery and fuelling. Claude Code skills help plan weeks, analyse workouts and estimate food.
+recovery and fuelling. Claude Code skills help build an annual training plan, plan training weeks and analyse workouts.
 
 Everything runs on your own computer. Your data stays in local folders that are kept out of git.
 
