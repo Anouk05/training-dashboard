@@ -68,7 +68,7 @@ export function chartMode(points: Pt[]): 'hr' | 'power' | null {
 }
 
 export type Section = { type: string; start: number; end: number; avg_watts?: number | null; avg_hr?: number | null;
-  intensity?: number | null; speed?: number | null; zone?: number | null }
+  intensity?: number | null; speed?: number | null; zone?: number | null; label?: string; cadence?: number | null; ef?: number | null; group?: string }
 
 export default function HrChart({ points, zones, powerZones = null, sport, reps = [], highlight = null, sections = [], onSection }:
   { points: Pt[]; zones: Zones; powerZones?: PowerZones; sport: string; reps?: Rep[]; highlight?: Rep | null;
@@ -161,7 +161,16 @@ export default function HrChart({ points, zones, powerZones = null, sport, reps 
   const gid = 'hrz' + Math.round(yLo) + Math.round(yHi)
 
   // band above the chart: one box per section with its averages, like intervals.icu's interval header
-  const BAND = sections.length ? 78 : 0
+  // repeat blocks (plan parts): a header over their boxes; GH pushes the boxes down to make room
+  const groups: { text: string; x0: number; x1: number }[] = []
+  sections.forEach(x => {
+    if (!x.group) return
+    const g = groups[groups.length - 1]
+    if (g && g.text === x.group && Math.abs(g.x1 - X(x.start / 60)) < 3) g.x1 = X(x.end / 60)
+    else groups.push({ text: x.group, x0: X(x.start / 60), x1: X(x.end / 60) })
+  })
+  const GH = groups.length ? 18 : 0
+  const BAND = !sections.length ? 0 : GH + (sections.some(x => x.ef != null || x.cadence != null) ? 94 : 78)
   const secLabel = (x: Section) => {
     const d = Math.round(x.end - x.start), m = Math.floor(d / 60), sec = d % 60
     return m >= 1 ? `${m}m${sec ? String(sec).padStart(2, '0') + 's' : ''}` : `${sec}s`
@@ -173,32 +182,44 @@ export default function HrChart({ points, zones, powerZones = null, sport, reps 
         {sections.map((x, i) => {
           const x0 = X(x.start / 60), x1 = X(x.end / 60), bw = x1 - x0, cx = (x0 + x1) / 2
           const work = x.type === 'WORK', on = highlight && Math.abs(highlight.from * 60 - x.start) < 1
-          const lines: [string, string][] = [[secLabel(x), '#cfcfd6'],
+          const lines: [string, string][] = [[x.label && bw >= 110 ? `${x.label} · ${secLabel(x)}` : secLabel(x), '#cfcfd6'],
             [x.avg_watts != null ? `${x.avg_watts}w` : '', '#b49bff'],
             [x.avg_hr != null ? `${x.avg_hr}bpm` : '', '#ff6f8f'],
-            [isRide || !x.speed ? (x.intensity != null ? `${x.intensity}%` : '') : `${pace(1000 / x.speed / 60)}/km`, '#8b8b97']]
+            [isRide && x.cadence != null ? `${x.cadence}rpm` : isRide || !x.speed ? (x.intensity != null ? `${x.intensity}%` : '') : `${pace(1000 / x.speed / 60)}/km`, '#8b8b97'],
+            [x.ef != null ? `EF ${x.ef.toFixed(2)}` : '', '#5ef2c4']]
           // narrow sections show fewer lines; the rest is in the table and on hover
-          const fit = bw >= 50 ? 4 : bw >= 34 ? 2 : 0
+          const fit = bw >= 50 ? 5 : bw >= 34 ? 2 : 0
+          // too narrow for the lines: the rep's cadence (or pace), written upwards
+          const tall = isRide ? (x.cadence != null ? `${x.cadence}` : '') : x.speed ? pace(1000 / x.speed / 60) : ''
+          const top = x.group ? GH : 0
           return <g key={i} onPointerEnter={() => onSection?.(i)} style={{ cursor: 'default' }}>
-            <rect x={x0 + 1} y={2} width={Math.max(2, bw - 2)} height={BAND - 6} rx={6}
+            <rect x={x0 + 1} y={top + 2} width={Math.max(2, bw - 2)} height={BAND - top - 6} rx={6}
               fill={on ? 'hsla(158, 80%, 62%, .14)' : work ? 'rgba(255,159,107,.10)' : 'rgba(255,255,255,.035)'}
               stroke={on ? 'hsla(158, 80%, 62%, .6)' : work ? 'rgba(255,159,107,.35)' : 'rgba(255,255,255,.07)'} />
-            {lines.slice(0, fit).map(([t, c], k) => t && <text key={k} x={cx} y={19 + k * 16} textAnchor="middle" fontSize={k === 0 ? 11.5 : 11}
+            {fit === 0 && tall && bw >= 9 && <text x={cx + 3.5} y={top + (BAND - top) / 2} textAnchor="middle" fontSize={Math.min(11, bw - 1)}
+              fontFamily="Geist Mono" fill={work ? '#ffb27a' : '#8b8b97'} transform={`rotate(-90 ${cx + 3.5} ${top + (BAND - top) / 2})`}>{tall}</text>}
+            {lines.slice(0, fit).map(([t, c], k) => t && <text key={k} x={cx} y={top + 19 + k * 16} textAnchor="middle" fontSize={k === 0 ? 11.5 : 11}
               fontFamily="Geist Mono" fill={c} fontWeight={k === 0 ? 500 : 400}>{t}</text>)}
           </g>
         })}
+        {groups.map((g, k) => <g key={'g' + k} pointerEvents="none">
+          <path d={`M${g.x0 + 2} 15 V11 H${g.x1 - 2} V15`} fill="none" stroke="rgba(255,159,107,.45)" />
+          <text x={(g.x0 + g.x1) / 2} y={8} textAnchor="middle" fontSize={11} fontFamily="Geist Mono" fill="#ffb27a"
+            style={{ paintOrder: 'stroke' }} stroke="#101015" strokeWidth={4}>{g.text}</text>
+        </g>)}
       </svg>}
       {(() => { // narrow sections: their numbers appear in a small label on hover
         const i = highlight ? sections.findIndex(x => Math.abs(highlight.from * 60 - x.start) < 1) : -1
         const x = sections[i]
         if (!x || X(x.end / 60) - X(x.start / 60) >= 50) return null
         const cx = (X(x.start / 60) + X(x.end / 60)) / 2
-        return <div style={{ position: 'absolute', top: 2, left: Math.min(w - 110, Math.max(0, cx - 52)), width: 104, pointerEvents: 'none', zIndex: 2,
+        return <div style={{ position: 'absolute', top: 2, left: Math.min(w - 130, Math.max(0, cx - 62)), width: 124, pointerEvents: 'none', zIndex: 2,
           padding: '6px 8px', borderRadius: 8, background: 'rgba(12,12,16,.95)', border: '1px solid rgba(255,159,107,.45)',
           fontFamily: '"Geist Mono", monospace', fontSize: 11, lineHeight: 1.45, textAlign: 'center' }}>
-          <div style={{ color: '#cfcfd6', fontWeight: 500 }}>{secLabel(x)}</div>
+          <div style={{ color: '#cfcfd6', fontWeight: 500 }}>{x.label ? `${x.label} · ` : ''}{secLabel(x)}</div>
           {x.avg_watts != null && <div style={{ color: '#b49bff' }}>{x.avg_watts}w</div>}
           {x.avg_hr != null && <div style={{ color: '#ff6f8f' }}>{x.avg_hr}bpm</div>}
+          {isRide && x.cadence != null && <div className="muted">{x.cadence}rpm</div>}
           {isRide || !x.speed ? x.intensity != null && <div className="muted">{x.intensity}%</div> : <div className="muted">{pace(1000 / x.speed / 60)}/km</div>}
         </div>
       })()}

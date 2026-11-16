@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import { Analysis, Card, Loading, prefetch, useApi } from '../components/ui'
 import { api, DEFAULT_ZONE_NAMES, dur, fd, pace, SPORT, ZONE_COLORS } from '../lib/util'
 import HrChart, { chartMode, timeInZones } from '../components/HrChart'
 import FuelCheck from '../components/FuelCheck'
+import { StrengthSessionCard } from '../components/Strength'
 
 export default function Workouts({ refresh, id }: { refresh: number; id?: string }) {
   const { data: list, error } = useApi('/activities?limit=80', refresh)
@@ -30,6 +31,7 @@ export default function Workouts({ refresh, id }: { refresh: number; id?: string
 function Detail({ id, preview }: { id: string; preview?: any }) {
   const { data: fetched, error, setData } = useApi(`/activity/${id}`)
   const [hl, setHl] = useState<number | null>(null) // section hovered in the table, highlighted on the chart
+  const [hlPart, setHlPart] = useState<{ from: number; to: number } | null>(null) // plan part hovered
   if (!fetched && !preview) return <div style={{ gridColumn: 'span 9' }}><Loading error={error} /></div>
   // until the details arrive, render the header from the list entry
   const d = fetched ?? { summary: preview, points: [], polyline: [], reps: [], earlier: [], planned: null, workout: null, loading: true }
@@ -55,7 +57,9 @@ function Detail({ id, preview }: { id: string; preview?: any }) {
   // sections as split by intervals.icu (warm-up, efforts, recoveries); fall back to auto-detected run reps
   const sections = (d.sections ?? []) as any[]
   const reps = (sections.length ? sections.filter(x => x.type === 'WORK').map(x => ({ from: x.start / 60, to: x.end / 60 })) : d.reps) as any[]
-  const hlSec = hl != null ? sections[hl] : null
+  // the band above the chart: intervals.icu's sections, or else the plan's parts (each rep its own box)
+  const band: any[] = sections.length ? sections : partBoxes(d.parts ?? [])
+  const hlSec = hl != null ? band[hl] : null
   const repSummary = reps.length > 1 && (() => {
     const p = reps.map(r => r.pace), h = reps.map(r => r.avg_hr).filter(Boolean)
     const spread = Math.round((Math.max(...p) - Math.min(...p)) * 60)
@@ -86,7 +90,7 @@ function Detail({ id, preview }: { id: string; preview?: any }) {
       right={isPower ? (d.power_zones ? <>power zones: intervals.icu · FTP {d.power_zones.ftp} W{d.power_zones.np ? ` · normalised ${d.power_zones.np} W` : ''} · hover for details</> : 'hover for details')
         : d.zones ? <>zones: {d.zones.source} {d.zones.sport.toLowerCase()} · LTHR {d.zones.lthr}{reps.length ? ` · dashed = ${sections.length ? 'efforts' : 'reps'}` : ''} · hover for details</> : 'hover for details'}>
       {pts.length ? <HrChart points={pts} zones={d.zones} powerZones={d.power_zones} sport={a.sport} reps={reps}
-          highlight={hlSec ? { from: hlSec.start / 60, to: hlSec.end / 60 } : null} sections={sections} onSection={setHl} />
+          highlight={hlSec ? { from: hlSec.start / 60, to: hlSec.end / 60 } : hlPart} sections={band} onSection={setHl} />
         : <div className="empty" style={{ height: 300, display: 'grid', placeItems: 'center' }}>{d.loading ? (error ? `Couldn't load details: ${error}` : 'Loading heart rate…') : 'No second-by-second data for this activity.'}</div>}
     </Card>
 
@@ -94,6 +98,7 @@ function Detail({ id, preview }: { id: string; preview?: any }) {
       <Analysis a={d.analysis} /></Card>}
     <NotesCard d={d} span={d.analysis ? 4 : 9} onSaved={setData} repSummary={repSummary || null} />
     {a.sport !== 'str' && <FuelCheck aid={a.id} span={9} />}
+    {a.sport === 'str' && <StrengthSessionCard date={a.date} span={9} />}
 
     {tiz && <Card span={map ? 6 : 9} title={isPower ? 'Time in power zones' : 'Time in zones'} right="from the samples, with the zones above">
       {floors.map((_, i) => `Z${i + 1} ${((isPower ? d.power_zones?.names : d.zones?.names) ?? DEFAULT_ZONE_NAMES)[i] ?? ''}`).map((n, i) => (
@@ -106,6 +111,8 @@ function Detail({ id, preview }: { id: string; preview?: any }) {
     </Card>}
 
     {map && <Card span={3} title="Route" right={a.km ? `${a.km.toFixed(1)} km` : ''}>{map}</Card>}
+
+    {d.parts?.length > 0 && <PartsCard parts={d.parts} sport={a.sport} onHover={setHlPart} />}
 
     {sections.length > 0 && <SectionsCard sections={sections} sport={a.sport} onHover={setHl} active={hl} />}
 
@@ -204,4 +211,53 @@ function SectionsCard({ sections, sport, onHover, active }: { sections: any[]; s
       </table>
     </Card>
   )
+}
+
+/** The workout split along its planned steps, from intervals.icu's 1-second data: what each part of the plan really was. */
+function PartsCard({ parts, sport, onHover }: { parts: any[]; sport: string; onHover: (r: { from: number; to: number } | null) => void }) {
+  const isRun = sport === 'run'
+  const [open, setOpen] = useState<number | null>(null)
+  return (
+    <Card span={9} title="By part of the plan" right={`1-second data · EF = ${isRun ? 'metres/min' : 'NP'} per heartbeat · hover a row to see it on the chart`}>
+      <table className="t parts" onMouseLeave={() => onHover(null)}>
+        <thead><tr><th>Part</th><th className="n">Time</th><th className="n">Avg W</th><th className="n">NP</th><th className="n">Avg HR</th>
+          <th className="n">{isRun ? 'Pace' : 'Cadence'}</th>{isRun && <th className="n">Cadence</th>}<th className="n">EF</th><th className="n">Drift</th></tr></thead>
+        <tbody>{parts.map((p, i) => <Fragment key={i}>
+          <tr className={p.reps > 1 ? 'work' : ''} onMouseEnter={() => onHover({ from: p.start / 60, to: p.end / 60 })}
+            onClick={() => p.per_rep && setOpen(open === i ? null : i)} style={{ cursor: p.per_rep ? 'pointer' : undefined }}>
+            <td><b style={{ fontWeight: 600 }}>{p.reps > 1 ? `${p.reps}× ` : ''}{p.label}</b>
+              <span className="muted" style={{ fontSize: 11.5, marginLeft: 8 }}>{p.target}</span>
+              {p.per_rep && <span className="muted" style={{ fontSize: 11, marginLeft: 6 }}>{open === i ? '▾' : '▸'}</span>}</td>
+            <td className="n">{dur(p.minutes)}</td>
+            <td className="n">{p.avg_watts ?? '–'}</td><td className="n muted">{p.np ?? '–'}</td>
+            <td className="n">{p.avg_hr ?? '–'}</td>
+            <td className="n">{isRun ? (p.pace ? pace(p.pace) : '–') : p.cadence ? <>{p.cadence}<small className="muted"> rpm</small></> : '–'}</td>
+            {isRun && <td className="n">{p.cadence ?? '–'}</td>}
+            <td className="n" style={{ color: p.ef ? '#5ef2c4' : undefined }}>{p.ef?.toFixed(2) ?? '–'}</td>
+            <td className="n muted">{p.decoupling != null ? `${p.decoupling > 0 ? '+' : ''}${p.decoupling}%` : '–'}</td>
+          </tr>
+          {open === i && p.per_rep && <tr className="reprow"><td colSpan={isRun ? 9 : 8}>
+            <div className="chips" style={{ gap: 6, flexWrap: 'wrap' }}>{p.per_rep.map((r: any, k: number) =>
+              <span key={k} className="chip">#{k + 1} <b>{isRun ? (r.pace ? pace(r.pace) : '–') : `${r.cadence ?? '–'} rpm`}</b> · {r.avg_watts ?? '–'} W · {r.avg_hr ?? '–'} bpm</span>)}</div>
+          </td></tr>}
+        </Fragment>)}</tbody>
+      </table>
+    </Card>
+  )
+}
+
+/** Plan parts as chart boxes: one per single part, one per rep of a repeat block, in time order. */
+function partBoxes(parts: any[]) {
+  const out: any[] = []
+  let group = ''
+  for (const p of parts) {
+    const work = p.label === 'Main set' || (p.reps > 1 && p.label !== 'Between reps')
+    // a repeat block gets a header over its boxes, e.g. "6× cadence reps · 105 rpm"
+    if (p.per_rep && work) group = `${p.reps}× ${p.label.toLowerCase()}${p.cadence ? ` · ${p.cadence} rpm` : p.pace ? ` · ${pace(p.pace)}/km` : ''}`
+    if (p.per_rep) p.per_rep.forEach((r: any, k: number) => out.push({ ...r, type: work ? 'WORK' : 'RECOVERY', label: `${work ? 'Rep' : 'Between'} ${k + 1}`,
+      group: group || `${p.reps}× ${p.label.toLowerCase()}`, speed: r.pace ? 1000 / (r.pace * 60) : null }))
+    else out.push({ type: work ? 'WORK' : 'RECOVERY', label: p.label, start: p.start, end: p.end, avg_watts: p.avg_watts,
+      avg_hr: p.avg_hr, cadence: p.cadence, ef: p.ef, decoupling: p.decoupling, speed: p.pace ? 1000 / (p.pace * 60) : null })
+  }
+  return out.sort((a, b) => a.start - b.start)
 }

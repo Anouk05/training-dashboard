@@ -9,6 +9,7 @@ from datetime import date, timedelta
 
 from .store import DETAILS
 from .sources import acts, analyses, events, library, power_zones_for, zones_for
+from .parts import parts as plan_parts
 from .workouts import act_summary, parse_steps, planned_from_event, workout_for
 
 # sync clients in the project root (store puts it on sys.path)
@@ -79,11 +80,17 @@ def activity(aid: str) -> dict:
     if len(sections) <= 1 or not structured:
         sections = []
     planned = planned_from_event(ev) if ev else None
+    by_part = []
+    if ev and a.get("icu_id"):
+        try:  # the plan's parts (warm-up, drills, main set) with power, HR, cadence and EF each
+            by_part = plan_parts(a["icu_id"], ev.get("description"), a["sport"])
+        except Exception:
+            by_part = []
     power_zones = power_zones_for(a["sport"], a.get("ftp") if a["sport"] == "ride" else None)
     if power_zones:
         power_zones["np"] = a.get("np")
     return {"summary": s, "points": pts, "polyline": poly, "reps": reps, "earlier": list(reversed(earlier)), "planned": planned,
-            "zones": zones, "power_zones": power_zones, "analysis": analyses().get(aid), "sections": sections,
+            "zones": zones, "power_zones": power_zones, "analysis": analyses().get(aid), "sections": sections, "parts": by_part,
             "repeat_number": len(earlier) + 1 if wid else None, "workout": library().get(wid) if wid else None}
 
 

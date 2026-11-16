@@ -113,6 +113,7 @@ def context(aid: str) -> dict:
         "power_zones": pz and {"ftp": pz["ftp"], "floors": pz["floors"], "names": pz["names"]},
         "power_zone_minutes": power_zone_min,
         "sections": det.get("sections") or [],  # intervals.icu's split: WORK/RECOVERY with avg power/HR; last20_* on long work blocks
+        "parts": det.get("parts") or [],  # the plan's parts from 1-s streams: avg/NP power, HR, cadence, EF, decoupling, per-rep values
         "reps": det["reps"],
         "halves": _halves(pts),
         "earlier_comparable": _comparables(a),
