@@ -31,7 +31,11 @@ export default function Today({ refresh }: { refresh: number }) {
   const { data: t, error } = useApi('/today', refresh)
   if (!t) return <Loading error={error} />
   const r = t.readiness, s = t.session, wk = t.week
-  const headline: Record<string, string> = { Primed: 'primed', 'Ready for quality': 'ready for quality', 'Easy day': 'best kept easy', Rest: 'due a rest' }
+  // second line of the greeting: what recovery says about today, highlighted part in <em>
+  const headline: Record<string, [string, string, string]> = {
+    Primed: ['Recovery looks ', 'strong', '.'], 'Ready for quality': ['Recovered enough to ', 'train hard', '.'],
+    'Easy day': ['A day to ', 'keep easy', '.'], Rest: ['Your body is asking for ', 'rest', '.'] }
+  const hl = headline[r.verdict]
 
   const L = t.load as any[]
   const mx = Math.max(...L.map(x => Math.max(x.fitness, x.fatigue))) * 1.1
@@ -40,7 +44,7 @@ export default function Today({ refresh }: { refresh: number }) {
 
   return <>
     <div className="ph"><div>
-      <h1>{greeting()}{t.name ? `, ${t.name}` : ''}.<br />{r.verdict ? <>You're <em>{headline[r.verdict]}</em> today.</> : 'Here is your day.'}</h1>
+      <h1>{greeting()}{t.name ? `, ${t.name}` : ''}.<br />{hl ? <>{hl[0]}<em>{hl[1]}</em>{hl[2]}</> : 'Here is your day.'}</h1>
       <p>{fd(t.date, { weekday: 'long', day: 'numeric', month: 'long' })}{wk.focus ? ` · ${wk.focus}` : ''}<Draft show={wk.status === 'draft'} label="draft plan" /></p>
     </div></div>
     <div className="grid">
