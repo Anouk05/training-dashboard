@@ -15,9 +15,9 @@ kept out of git.
 
 - Python 3.11+ and Node.js 18+
 - An [intervals.icu](https://intervals.icu) account (plan, load, fitness and zones)
-- A Garmin Connect Personal API key (activities, sleep, HRV, weight)
+- A [Garmin Connect Personal API key](https://developer.garmin.com/gc-developer-program/personal/personal-api/) (activities, sleep, HRV)
 - Optional: a Notion integration for logging gym sessions
-- Optional: [Claude Code](https://claude.com/claude-code) for the planning and analysis skills
+- Optional: [Claude Code](https://claude.com/claude-code) for the workout planning and analysis skills
 
 ### Installation
 
@@ -73,8 +73,7 @@ Then open http://localhost:5173.
 
 ## Coaching method
 
-The planning skills are based on Joe Friel's methods, summarised in our own words. You can add your own fuller
-notes and volume tables locally; they stay out of git:
+The planning skills are based on Joe Friel's methods. You can add your own notes, preferences, and volume tables locally:
 
 - `.claude/skills/plan-season/method.local.md` and `volume-tables.md` (weekly hours per period)
 - `.claude/skills/plan-week/method.local.md` and `daily-volume.md` (daily hours per week)
