@@ -76,3 +76,14 @@ Then open http://localhost:5173.
 - "analyse today's ride" (`analyze-workout`; the report shows on the workout page)
 - "I had 40 g oats with milk and an apple for breakfast" (`estimate-food`)
 - "plan my season" (`plan-season`)
+
+## Coaching method
+
+The planning skills are based on Joe Friel's methods, summarised in our own words. You can add your own fuller
+notes and volume tables locally; they stay out of git:
+
+- `.claude/skills/plan-season/method.local.md` and `volume-tables.md` (weekly hours per period)
+- `.claude/skills/plan-week/method.local.md` and `daily-volume.md` (daily hours per week)
+- `coach/principles.local.md`
+
+Without them, the skills use a simple built-in rule for weekly and daily volume.

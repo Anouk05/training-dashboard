@@ -123,7 +123,7 @@ def context(aid: str) -> dict:
         "week": {"focus": wk["focus"], "totals": wk["totals"], "intensity_last7": wk["intensity"], "rules": wk["rules"]},
         "next_planned": [{k: p[k] for k in ("date", "name", "sport", "minutes", "load", "description")} for p in nxt[:5]],
         "calendar_notes_last_5_weeks": notes,
-        "read_also": ["coach/principles.md", "coach/rules.yaml"],
+        "read_also": ["coach/principles.md", "coach/rules.yaml"] + (["coach/principles.local.md"] if (ROOT / "coach" / "principles.local.md").exists() else []),
     }
 
 

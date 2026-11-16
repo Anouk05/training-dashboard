@@ -18,6 +18,11 @@ plans/
 # design mockups were built from a snapshot of your real data
 design/
 
+# fuller coaching notes and volume tables: kept local
+*.local.md
+.claude/skills/plan-season/volume-tables.md
+.claude/skills/plan-week/daily-volume.md
+
 # ---- Generated / local ----------------------------------------------------------
 .venv/
 __pycache__/

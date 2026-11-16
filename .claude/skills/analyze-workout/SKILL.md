@@ -24,7 +24,7 @@ If a sync fails (network, rate limit), continue with the data that's there and s
 ```bash
 .venv/bin/python tools/workout_context.py <id>
 ```
-Read once per run as well: `coach/principles.md`, `coach/rules.yaml`, and the athlete context in memory
+Read once per run as well: `coach/principles.md` (and `coach/principles.local.md` if present), `coach/rules.yaml`, and the athlete context in memory
 (current season and goals, injuries or health notes to keep in mind).
 Don't open the raw CSVs; the JSON has what you need.
 

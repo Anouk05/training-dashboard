@@ -16,7 +16,7 @@ Look at the last 7 days. A meal needs an estimate when `kcal` is null. Leave mea
 First check `nutrition/recipes.yaml` (your own recipes, kept out of git; start from `recipes.example.yaml`): when a meal names one of those recipes, use its `per_serving` values
 (scaled to the portion described). When the user gives a new recipe with amounts, add it there.
 For each meal, estimate kcal, carbs, protein and fat (grams) from the description. The text may be Dutch.
-- Use typical Dutch portions unless the text gives amounts: slice of bread 35–40 g (wholemeal ~85–90 kcal, 14–15 g carbs, 3.5–4 g protein),
+- Use typical (Dutch) portions unless the text gives amounts: slice of bread 35–40 g (wholemeal ~85–90 kcal, 14–15 g carbs, 3.5–4 g protein),
   tablespoon of peanut butter 15 g, a bowl of oats 60 g dry, a plate of pasta 90 g dry, rice 75 g dry, a banana 120 g,
   glass of milk 200 ml, a cup of yoghurt or quark 150 g, cheese on bread 20 g per slice, a hand of nuts 25 g.
 - Use Dutch food-composition values (NEVO) where you know them; otherwise standard values.
