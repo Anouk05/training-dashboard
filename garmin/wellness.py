@@ -210,6 +210,9 @@ def sync_cycle() -> list[dict]:
         s = (api_get(f"/periodichealth-service/menstrualcycle/dayview/{d.isoformat()}") or {}).get("daySummary")
         if not s or not s.get("startDate"):
             break
+        if s.get("predictedCycle"):  # a predicted cycle, not a logged period: step back into the real one
+            d = date.fromisoformat(s["startDate"]) - timedelta(days=1)
+            continue
         start = s["startDate"]
         found[start] = {"start": start, "period_length": s.get("periodLength"), "fertile_start": s.get("fertileWindowStart"),
                         "fertile_length": s.get("lengthOfFertileWindow"), "cycle_type": s.get("cycleType"),
@@ -217,7 +220,8 @@ def sync_cycle() -> list[dict]:
         if start in known and len(found) > 1:  # reached cycles we already have (the current one is always refreshed)
             break
         d = date.fromisoformat(start) - timedelta(days=1)
-    rows = {**known, **found}
+    current = max(found) if found else None  # today's real cycle; any later start we kept was a prediction
+    rows = {k: v for k, v in {**known, **found}.items() if not current or k <= current}
     starts = sorted(rows)
     out = []
     for i, st in enumerate(starts):
