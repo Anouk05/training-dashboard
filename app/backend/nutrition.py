@@ -42,7 +42,7 @@ def body() -> dict:
 
 
 def _kg() -> float:
-    return body().get("weight") or 60.0
+    return body().get("weight") or 70.0  # until the scale has synced a weight
 
 
 # --------------------------------------------------------------------------- fuel targets

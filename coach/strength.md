@@ -6,7 +6,7 @@ phase, the code in the first column) when you edit numbers; the text sections ar
 
 ## Weight lifting phases
 
-Guide for sessions, load and reps per phase (Friel, Table 13.3). Load is a percentage of your one-rep max (1RM); the
+Guide for sessions, load and reps per phase, based on Joe Friel's methods. Load is a percentage of your one-rep max (1RM); the
 dashboard estimates your 1RM per exercise from your logged sets.
 
 | Code | Phase | Period | Total sessions | Sessions per week | Load (% 1RM) | Sets per session | Reps per set | Recovery (min) |

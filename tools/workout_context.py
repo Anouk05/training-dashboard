@@ -4,7 +4,7 @@
 Usage (from the Sport folder):
     .venv/bin/python tools/workout_context.py --pending        # completed workouts of the last 7 days without a report
     .venv/bin/python tools/workout_context.py latest           # context for the most recent workout
-    .venv/bin/python tools/workout_context.py 24964028701      # context for one activity id
+    .venv/bin/python tools/workout_context.py 12345678901      # context for one activity id
 
 Used by the analyze-workout skill; reports are written to reports/workouts/<date>-<id>.md.
 """

@@ -52,14 +52,14 @@ Be concrete and honest. Use the numbers. Don't praise by default; say what was g
 Never invent data that isn't in the JSON. If heart rate or power is missing, say what that limits.
 
 ## 5. Write the report
-Write it to `report_path` from the JSON (e.g. `reports/workouts/2026-11-04-24964028701.md`), in English.
+Write it to `report_path` from the JSON (e.g. `reports/workouts/2026-11-04-12345678901.md`), in English.
 The workout page already shows distance, time, pace/power, heart rate, load, RPE, the heart-rate chart and time in
 zones right above the report, so **don't repeat those numbers**. Only use a number when it carries the point
 (drift, a comparison with earlier sessions, a test result). Short, scannable, no filler:
 
 ```markdown
 ---
-activity_id: "24964028701"
+activity_id: "12345678901"
 date: 2026-11-04
 title: Easy and controlled, efficiency back at its usual level   # the verdict, ≤ 60 characters
 rating: on_target        # on_target | easier | harder | missed | test | unplanned

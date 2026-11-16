@@ -9,23 +9,22 @@
 - `plans/seasons.yaml`: past seasons (windows, goals, extra results). `plans/weeks/` is only a fallback when there's no calendar.
 - `library/workouts.yaml`: standard workouts with stable IDs (`RUN-THR-2k`, …); `match` regexes link Garmin activities to them.
 - `coach/rules.yaml`: hard rules checked by the dashboard. `coach/principles.md`: judgment calls (fuller local notes in `coach/principles.local.md`, not in git); read them before planning or analysing. `coach/strength.md`: strength principles, exercises and the weight-lifting phase table (AA/MT/MS/SM) the dashboard uses for gym targets.
-- Skills in `.claude/skills/`: `plan-season` (annual plan), `plan-week` (weekly routine); each has a short public SKILL.md, and local-only `method.local.md` plus the volume tables (`volume-tables.md`, `daily-volume.md`) taken based on Joe Friel's methods, kept out of git, `analyze-workout`, `estimate-food`.
+- Skills in `.claude/skills/`: `plan-season` (annual plan), `plan-week` (weekly routine); each has a short public SKILL.md, and local-only `method.local.md` plus the volume tables (`volume-tables.md`, `daily-volume.md`) based on Joe Friel's methods, kept out of git, `analyze-workout`, `estimate-food`.
 - `reports/coach/<date>.md`: optional daily coach note; when present, the Today page shows it instead of the auto-check.
 - `reports/workouts/<date>-<activity id>.md`: coach report per completed workout, written by the `analyze-workout` skill (`.claude/skills/analyze-workout/`) from `tools/workout_context.py`; shown on the workout page, the Week tile and Today.
 - `nutrition/`: the Fuel page's data. `intake/<date>.json` = food log (plain-text meals; the `estimate-food` skill fills kcal/macros with `source: "estimate"`), `fuel.json` = quick fuel check per workout (its carbs also go to intervals.icu `carbs_ingested`), `foods.yaml` = during-workout items, `recipes.yaml` = your recipes (local only; `recipes.example.yaml` shows the format). Targets are in `app/backend/nutrition.py`; body weight comes from `garmin_data/weight.csv` (Garmin Index scale).
 - `app/backend/`: FastAPI. `main.py` = routes; one module per concern, each importing only from the ones above it:
   `store` (paths, file cache, helpers) → `sources` (read synced data, calendar, zones, library, rules) → `body` (load model, cycle, readiness, recovery) and `workouts` (planned workouts, abilities, calendar edits) → `atp` (annual plan) → `week` (Week/Today), `season`, `activity`, `progress`; `nutrition` (Fuel).
 - `app/web/`: React + Vite front end, Aurora design. `src/pages/` one file per page, `src/components/` shared parts, `src/styles/` CSS per area.
-- `design/`: static design mockups (reference only).
 
 ## Run the dashboard
-`./start-dashboard.sh`, then open http://localhost:5173. Or start `pulse-api` and `pulse` from `.claude/launch.json`.
+`./start-dashboard.sh`, then open http://localhost:5173. Or start `api` and `web` from `.claude/launch.json`.
 
 ## Conventions
 - Keep files focused on one goal and roughly 150–500 lines; split a module before it passes ~500.
 - Heart-rate and power zones come from intervals.icu (`intervals_data/settings.json`, 7 zones per sport); Garmin zones are only a fallback. Per-workout zone times are intervals.icu's (computed with the zones valid at the time).
-- Show training load next to hours, everywhere. Load is intervals.icu's (consistent scale, also on planned workouts) from Mar 2025; fitness/fatigue are intervals.icu CTL/ATL.
+- Show training load next to hours, everywhere. Load is intervals.icu's (consistent scale, also on planned workouts); fitness/fatigue are intervals.icu CTL/ATL.
 - Activities are de-duplicated in `app/backend/sources.py` (watch + Edge record the same ride); never sum raw CSV rows for totals.
-- intervals.icu history (and comparable load) starts March 2025; older load shows as "—".
+- Before your intervals.icu history starts there is no comparable load; it shows as "—".
 - Week files are edited line-by-line by the dashboard (drag & drop), so keep one session per line: `- { date: …, workout: … }`.
 - Past seasons run from 1 Sep to the first Sunday of July.

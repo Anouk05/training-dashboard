@@ -7,7 +7,7 @@ tests:
     - id: RUN-AEROBIC
       name: Aerobic test
       measures: Aerobic endurance · efficiency factor (m per heartbeat) and decoupling
-      how: 10′ warm-up, then 30′ steady on a flat route at a fixed heart rate (150 bpm, top of Z1), 5′ cool-down
+      how: 10′ warm-up, then 30′ steady on a flat route at a fixed heart rate (top of Z1), 5′ cool-down
       when: last week of each base period
       match: 'aerobic test|aerobic baseline'
     - id: RUN-TT30
@@ -59,7 +59,7 @@ tests:
       name: 5RM squat or leg press
       measures: Maximum strength · estimated 1RM (5RM × 1.15) and per kg body weight
       how: after the maximum strength (MS) phase; build up to the heaviest 5 clean reps
-      when: end of MS (late December) and after the Almere MS block
+      when: end of each maximum strength (MS) block
     - id: STR-DEADLIFT-5RM
       name: 5RM Romanian deadlift
       measures: Posterior-chain strength · estimated 1RM
