@@ -2,6 +2,7 @@
 // the day's totals against targets (carbs and protein per kg, energy availability), and the last 7 days.
 import { useState } from 'react'
 import { Card, Loading, useApi } from '../components/ui'
+import FuelTotals from '../components/FuelTotals'
 import { addDays, api, fd, SPORT } from '../lib/util'
 
 const SLOTS: [string, string][] = [['breakfast', 'Breakfast'], ['lunch', 'Lunch'], ['dinner', 'Dinner'], ['snack', 'Snack'], ['workout', 'During workout']]
@@ -81,21 +82,13 @@ function DayLog({ d, dd, setDay, today }: { d: string; dd: any; setDay: (x: any)
     setBusy(false)
   }
   const del = async (id: string) => setDay(await api(`/fuel/day/${d}/meal/${id}`, { method: 'DELETE' }))
-  const bar = (v: number, lo: number, hi: number) => <div className="fbar"><i style={{ width: `${Math.min(100, v / (hi * 1.2) * 100)}%`, background: v >= lo ? '#5ef2c4' : '#f7c76a' }} />
-    <u style={{ left: `${lo / (hi * 1.2) * 100}%`, width: `${(hi - lo) / (hi * 1.2) * 100}%` }} /></div>
 
   return <Card span={8} title={<span className="row" style={{ gap: 12 }}>Food log
     <span className="stepper small"><button onClick={() => (location.hash = `fuel/${addDays(d, -1)}`)}>‹</button>
       <b>{d === today ? 'Today' : fd(d, { weekday: 'short', day: 'numeric', month: 'short' })}</b>
       <button disabled={d >= today} onClick={() => (location.hash = `fuel/${addDays(d, 1)}`)}>›</button></span></span>}
     right={`${dd.training.hours} h training${dd.training.planned ? ' planned' : ''} · ~${dd.training.exercise_kcal} kcal`}>
-    <div className="ftot">
-      <div><div className="muted">Eaten <span className="mono">{t.kcal} kcal</span>{tg.kcal && <> · target {tg.kcal[0].toLocaleString('en')}–{tg.kcal[1].toLocaleString('en')}</>}</div>
-        {tg.kcal ? bar(t.kcal, tg.kcal[0], tg.kcal[1]) : <div className="big" style={{ fontSize: 24 }}>{t.kcal}<small> kcal</small></div>}
-        {dd.ea != null && <div className={`mono ea ${dd.ea >= 45 ? 'ok' : dd.ea >= 30 ? 'mid' : 'low'}`}>EA {dd.ea} kcal/kg FFM</div>}</div>
-      <div><div className="muted">Carbs <span className="mono">{t.carbs} g</span> · target {tg.carbs[0]}–{tg.carbs[1]} g ({tg.carbs_gkg[0]}–{tg.carbs_gkg[1]} g/kg)</div>{bar(t.carbs, tg.carbs[0], tg.carbs[1])}</div>
-      <div><div className="muted">Protein <span className="mono">{t.protein} g</span> · target {tg.protein[0]}–{tg.protein[1]} g (1.6–2.0 g/kg)</div>{bar(t.protein, tg.protein[0], tg.protein[1])}</div>
-    </div>
+    <FuelTotals t={t} tg={tg} ea={dd.ea} kg={dd.body?.weight || tg.protein[0] / 1.6} />
     {dd.to_estimate > 0 && <div className="fnote">{dd.to_estimate} meal{dd.to_estimate === 1 ? '' : 's'} without numbers yet. Claude estimates them every evening at 21:00,
       or ask in the chat: <span className="mono">estimate my food log</span>. Totals and EA count once every meal has numbers.</div>}
 
